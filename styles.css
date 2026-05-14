@@ -263,6 +263,8 @@ button:disabled {
 .hero > *,
 .hero-card > *,
 .button-row > *,
+.viral-actions > *,
+.hook-actions > *,
 .mode-grid > *,
 .case-grid > *,
 .preview-grid > *,
@@ -499,6 +501,8 @@ h3 {
 }
 
 .button-row,
+.viral-actions,
+.hook-actions,
 .mode-grid,
 .case-grid,
 .preview-grid,
@@ -512,6 +516,40 @@ h3 {
 .button-row {
   grid-template-columns: 1fr;
   max-width: 760px;
+}
+
+.viral-actions {
+  grid-template-columns: 1fr;
+  max-width: 760px;
+  margin-top: 0.85rem;
+}
+
+.hook-panel {
+  display: grid;
+  gap: 1rem;
+  max-width: none;
+  padding: clamp(1.05rem, 4vw, 1.65rem);
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  border-radius: var(--radius-md);
+  background:
+    radial-gradient(circle at 82% 24%, rgba(56, 189, 248, 0.16), transparent 16rem),
+    rgba(15, 27, 46, 0.7);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(16px);
+}
+
+.hook-panel h2,
+.hook-panel p {
+  margin: 0;
+}
+
+.hook-panel p:not(.eyebrow) {
+  color: var(--color-muted);
+  line-height: 1.7;
+}
+
+.hook-actions {
+  grid-template-columns: 1fr;
 }
 
 .btn {
@@ -572,6 +610,13 @@ h3 {
 .btn.ghost {
   border-color: var(--color-border);
   background: rgba(255, 255, 255, 0.06);
+}
+
+.btn.compact {
+  min-height: 44px;
+  padding: 0.68rem 0.85rem;
+  border-radius: 14px;
+  font-size: 0.94rem;
 }
 
 .btn.danger {
@@ -1307,6 +1352,8 @@ h3 {
 
 @media (min-width: 620px) {
   .button-row,
+  .viral-actions,
+  .hook-actions,
   .mode-grid,
   .preview-grid,
   .stat-grid {
@@ -1366,6 +1413,19 @@ h3 {
 
   .button-row {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .viral-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .hook-panel {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
+    align-items: center;
+  }
+
+  .hook-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .case-grid {

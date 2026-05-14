@@ -7,6 +7,8 @@ const LANG_STORAGE_KEY = "friendCourtLang";
 const SHARE_PARAM = "friendcase";
 const SUPPORTED_LANGS = ["th", "en"];
 const LANGUAGE_FLAGS = { th: "🇹🇭", en: "🇬🇧" };
+const SITE_URL = "https://pkrtsir.github.io/friend-court/";
+const RECOMMENDED_CASE_IDS = ["read-no-reply", "almost-there", "food-choice", "not-hungry"];
 let currentLang = "th";
 let lastRouteHash = "home";
 
@@ -23,6 +25,10 @@ const translations = {
       subtitle: "ตอบไว รับคำตัดสินไว แล้วส่งไปให้แชตกลุ่มตัดสินซ้ำ",
       previewTitle: "แฟ้มคดีเด่น",
       previewSubtitle: "คดีสั้น ๆ สำหรับคนมีหลักฐานในใจ",
+      hookTitle: "ส่งหมายเรียกให้เพื่อน",
+      hookCopy: "เลือกคดี แล้วส่งให้เพื่อนที่น่าสงสัยที่สุดในกลุ่มแชต",
+      recommendedTitle: "คดีแนะนำจากศาล",
+      recommendedSubtitle: "เลือกคดีที่เหมือนแชตกลุ่มคุณที่สุด แล้วให้ศาลเริ่มไต่สวน",
       docketTitle: "อ่านแล้วไม่ตอบ",
       docketStamp: "น่าสงสัย"
     },
@@ -31,6 +37,13 @@ const translations = {
       duo: "ฟ้องเพื่อน",
       daily: "คดีวันนี้",
       history: "ประวัติ",
+      shareSite: "แชร์เว็บนี้",
+      copySiteLink: "คัดลอกลิงก์เว็บ",
+      randomFriendCase: "สุ่มคดีให้เพื่อน",
+      sueFriendNow: "ฟ้องเพื่อนตอนนี้",
+      randomCase: "สุ่มคดี",
+      fileThisCase: "ฟ้องเพื่อนคดีนี้",
+      copyVerdict: "คัดลอกคำพิพากษา",
       duoSame: "เล่น 2 คนในเครื่องเดียว",
       duoLink: "ส่งลิงก์ให้เพื่อน",
       acceptLink: "เริ่มตอบฝั่งของฉัน",
@@ -38,7 +51,7 @@ const translations = {
       copyFriendLink: "คัดลอกลิงก์ให้เพื่อน",
       shareText: "แชร์ข้อความ",
       copyLink: "คัดลอกลิงก์",
-      saveImage: "บันทึกผลเป็นรูปภาพ",
+      saveImage: "บันทึกหลักฐานเป็นรูปภาพ",
       playAgain: "เล่นอีกคดี",
       home: "กลับหน้าแรก",
       clearHistory: "ลบประวัติ"
@@ -119,7 +132,9 @@ const translations = {
     share: {
       solo: "ศาลเพื่อนตัดสินแล้ว: {caseTitle} | {title} | น่าสงสัย {guilty}% | {punishment}",
       duo: "ศาลเพื่อนตัดสินแล้ว: {caseTitle} | {title} | A {a}% B {b}% | เข้ากัน {compatibility}%",
-      invite: "มีหมายเรียกจากศาลเพื่อนสนิท: {caseTitle} มาตอบฝั่งของเธอหน่อย {url}"
+      invite: "มีหมายเรียกจากศาลเพื่อนสนิท: {caseTitle} มาตอบฝั่งของเธอหน่อย {url}",
+      verdict: "ศาลตัดสินแล้ว! ฉันได้ผลว่า: {verdictTitle} ในคดี {caseTitle} ลองมาให้ศาลตัดสินบ้าง: {url}",
+      site: "คดีนี้ใครผิด? ฟ้องเพื่อน แล้วให้ศาลลับกลางคืนตัดสินคดีไร้สาระแบบขำ ๆ {url}"
     },
     toast: {
       copied: "คัดลอกเรียบร้อย",
@@ -147,6 +162,10 @@ const translations = {
       subtitle: "Answer fast. Get judged. Drop the verdict in the group chat.",
       previewTitle: "Hot Case Files",
       previewSubtitle: "Tiny crimes. Big friend energy.",
+      hookTitle: "Send a Court Summons",
+      hookCopy: "Pick a case and send it to the most suspicious friend in the group chat.",
+      recommendedTitle: "Court-Recommended Cases",
+      recommendedSubtitle: "Choose the case that sounds most like your group chat, then let court begin.",
       docketTitle: "Read, No Reply",
       docketStamp: "Looks Sus"
     },
@@ -155,6 +174,13 @@ const translations = {
       duo: "File a Friend Case",
       daily: "Daily Chaos",
       history: "Case History",
+      shareSite: "Share This Site",
+      copySiteLink: "Copy Site Link",
+      randomFriendCase: "Random Friend Case",
+      sueFriendNow: "File a Case Now",
+      randomCase: "Random Case",
+      fileThisCase: "File This Case",
+      copyVerdict: "Copy Verdict",
       duoSame: "Same Phone Trial",
       duoLink: "Send Court Link",
       acceptLink: "Give My Statement",
@@ -162,7 +188,7 @@ const translations = {
       copyFriendLink: "Copy Summons Link",
       shareText: "Share Verdict",
       copyLink: "Copy Link",
-      saveImage: "Save PNG",
+      saveImage: "Save Evidence PNG",
       playAgain: "New Case",
       home: "Back to Court",
       clearHistory: "Clear History"
@@ -243,7 +269,9 @@ const translations = {
     share: {
       solo: "Friend Court judged me in {caseTitle}. Verdict: {title}. Sus score: {guilty}%. Sentence: {punishment}",
       duo: "Friend Court ruled on {caseTitle}: {title}. A is {a}% sus, B is {b}% sus, friend sync {compatibility}%.",
-      invite: "Friend Court summons you for {caseTitle}. Enter the courtroom: {url}"
+      invite: "Friend Court summons you for {caseTitle}. Enter the courtroom: {url}",
+      verdict: "Friend Court has judged me: {verdictTitle} in {caseTitle}. Try your case here: {url}",
+      site: "Who is guilty? File a silly friend case and let Midnight Court decide. {url}"
     },
     toast: {
       copied: "Copied",
@@ -2954,6 +2982,11 @@ function renderHome() {
             <button class="btn" type="button" data-action="daily">${t("buttons.daily")}</button>
             <button class="btn ghost" type="button" data-action="history">${t("buttons.history")}</button>
           </div>
+          <div class="viral-actions" aria-label="${currentLang === "th" ? "แชร์เว็บ" : "Share site"}">
+            <button class="btn compact" type="button" data-share-site>${t("buttons.shareSite")}</button>
+            <button class="btn compact ghost" type="button" data-copy-site-link>${t("buttons.copySiteLink")}</button>
+            <button class="btn compact pink" type="button" data-random-friend-case>${t("buttons.randomFriendCase")}</button>
+          </div>
         </div>
         <div class="hero-docket" aria-hidden="true">
           <div class="docket-card">
@@ -2966,15 +2999,27 @@ function renderHome() {
           <div class="floating-sticker sticker-c">💬</div>
         </div>
       </div>
+      <section class="section court-panel hook-panel" aria-labelledby="hook-title">
+        <div>
+          <p class="eyebrow">${t("landing.eyebrow")}</p>
+          <h2 id="hook-title">${t("landing.hookTitle")}</h2>
+          <p>${t("landing.hookCopy")}</p>
+        </div>
+        <div class="hook-actions">
+          <button class="btn primary" type="button" data-start="duo">${t("buttons.sueFriendNow")}</button>
+          <button class="btn pink" type="button" data-random-friend-case>${t("buttons.randomCase")}</button>
+          <button class="btn ghost" type="button" data-copy-site-link>${t("buttons.copyLink")}</button>
+        </div>
+      </section>
       <section class="section" aria-labelledby="preview-title">
         <div class="section-head">
           <div>
-            <h2 id="preview-title">${t("landing.previewTitle")}</h2>
-            <p>${t("landing.previewSubtitle")}</p>
+            <h2 id="preview-title">${t("landing.recommendedTitle")}</h2>
+            <p>${t("landing.recommendedSubtitle")}</p>
           </div>
         </div>
         <div class="preview-grid">
-          ${cases.slice(0, 4).map((item, index) => `
+          ${getRecommendedCases().map((item, index) => `
             <article class="mini-card tone-${index % 4}">
               <span class="icon">${item.icon}</span>
               <strong>${getCaseTitle(item)}</strong>
@@ -2990,6 +3035,15 @@ function renderHome() {
       state.mode = button.dataset.start === "duo" ? "duo-menu" : "solo";
       location.hash = button.dataset.start === "duo" ? "#modes" : "#cases";
     });
+  });
+  app.querySelectorAll("[data-share-site]").forEach((button) => {
+    button.addEventListener("click", shareSite);
+  });
+  app.querySelectorAll("[data-copy-site-link]").forEach((button) => {
+    button.addEventListener("click", () => copyText(SITE_URL));
+  });
+  app.querySelectorAll("[data-random-friend-case]").forEach((button) => {
+    button.addEventListener("click", () => startRandomFriendCase());
   });
 }
 
@@ -3077,6 +3131,22 @@ function startCase(caseId) {
   state.latestVerdict = null;
   state.activePlayer = "A";
   location.hash = "#question";
+}
+
+function startRandomFriendCase() {
+  const item = cases[Math.floor(Math.random() * cases.length)] || cases[0];
+  state.mode = "duo-link-a";
+  startCase(item.id);
+}
+
+function startFriendCaseFromVerdict(verdict) {
+  const caseId = verdict.caseId || verdict.player?.caseId || verdict.playerA?.caseId || cases[0].id;
+  state.mode = "duo-link-a";
+  startCase(caseId);
+}
+
+function getRecommendedCases() {
+  return RECOMMENDED_CASE_IDS.map((id) => getCase(id)).filter(Boolean);
 }
 
 function startDaily() {
@@ -3180,13 +3250,12 @@ function renderVerdict() {
     renderHome();
     return;
   }
-  const isShareSetup = verdict.type === "share";
   renderShell(`
     <section class="verdict-wrap">
       ${renderVerdictCard(verdict)}
       <aside class="verdict-actions" aria-label="${t("verdict.actionsLabel")}">
-        ${isShareSetup ? `<button class="btn primary" type="button" data-copy-link>${t("buttons.copyFriendLink")}</button>` : ""}
-        <button class="btn pink" type="button" data-share-text>${t("buttons.shareText")}</button>
+        <button class="btn pink" type="button" data-file-this-case>${t("buttons.fileThisCase")}</button>
+        <button class="btn" type="button" data-copy-verdict>${t("buttons.copyVerdict")}</button>
         <button class="btn" type="button" data-copy-link>${t("buttons.copyLink")}</button>
         <button class="btn" type="button" data-save-image>${t("buttons.saveImage")}</button>
         <button class="btn ghost" type="button" data-play-again>${t("buttons.playAgain")}</button>
@@ -3350,8 +3419,11 @@ function bindVerdictActions(verdict) {
       location.hash = state.mode === "duo-menu" ? "#modes" : "#cases";
     });
   });
-  app.querySelectorAll("[data-share-text]").forEach((button) => {
-    button.addEventListener("click", () => shareText(verdict));
+  app.querySelectorAll("[data-file-this-case]").forEach((button) => {
+    button.addEventListener("click", () => startFriendCaseFromVerdict(verdict));
+  });
+  app.querySelectorAll("[data-copy-verdict]").forEach((button) => {
+    button.addEventListener("click", () => shareVerdict(verdict));
   });
   app.querySelectorAll("[data-copy-link]").forEach((button) => {
     button.addEventListener("click", () => copyText(getShareUrl(verdict)));
@@ -3590,7 +3662,42 @@ function getShareUrl(verdict) {
     url.searchParams.set(SHARE_PARAM, payload);
     return url.toString();
   }
-  return window.location.href;
+  return SITE_URL;
+}
+
+function buildViralVerdictText(verdict) {
+  return t("share.verdict", {
+    verdictTitle: getLocalized(verdict.title),
+    caseTitle: getLocalized(verdict.caseTitle),
+    url: SITE_URL
+  });
+}
+
+async function shareSite() {
+  const text = t("share.site", { url: SITE_URL });
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: t("pageTitle"), text, url: SITE_URL });
+      return;
+    } catch (error) {
+      // A cancelled native share should still leave the user with a useful fallback.
+    }
+  }
+  copyText(text);
+}
+
+async function shareVerdict(verdict) {
+  const text = verdict.type === "share" ? buildInviteText(verdict) : buildViralVerdictText(verdict);
+  const url = getShareUrl(verdict);
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: t("appTitle"), text, url });
+      return;
+    } catch (error) {
+      // A cancelled native share should still leave the user with a useful fallback.
+    }
+  }
+  copyText(text);
 }
 
 async function shareText(verdict) {
@@ -3608,10 +3715,34 @@ async function shareText(verdict) {
 
 async function copyText(text) {
   try {
+    if (!navigator.clipboard?.writeText) throw new Error("Clipboard API unavailable");
     await navigator.clipboard.writeText(text);
     showToast(t("toast.copied"));
   } catch (error) {
+    if (legacyCopyText(text)) {
+      showToast(t("toast.copied"));
+      return;
+    }
     showToast(t("toast.copyFailed"));
+  }
+}
+
+function legacyCopyText(text) {
+  try {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.left = "-9999px";
+    textarea.style.top = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    textarea.setSelectionRange(0, textarea.value.length);
+    const ok = document.execCommand("copy");
+    textarea.remove();
+    return ok;
+  } catch (error) {
+    return false;
   }
 }
 

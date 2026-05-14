@@ -10,6 +10,8 @@ Static Thai/English friendship court game. Players choose a silly friendship cas
 - Daily Case Mode with local daily streak tracking.
 - Verdict history saved in `localStorage`.
 - Share text, copy links, and export a 1080x1350 PNG result image with canvas.
+- SEO basics: canonical URL, robots policy, sitemap, Open Graph, Twitter Card, and a 1200x630 social preview image.
+- Viral sharing prompts on the homepage and verdict page.
 - Bilingual UI: Thai and English.
 - Language switcher in the top-right corner with flag-only options: `🇹🇭` and `🇬🇧`.
 - Selected language is saved in `localStorage` with `friendCourtLang`.
@@ -44,8 +46,47 @@ Then open `http://localhost:8000`.
 ├── index.html   # Page shell, fonts, app mount, export canvas
 ├── styles.css   # Midnight Court UI, responsive layout, animations
 ├── app.js       # Data, translations, scoring, routing, localStorage, sharing
+├── og-image.png # Social preview image
+├── robots.txt
+├── sitemap.xml
 └── README.md
 ```
+
+## Google Search Console
+
+GitHub Pages does not automatically bring traffic. After deploying, submit the site manually:
+
+1. Open Google Search Console.
+2. Add a URL prefix property: `https://pkrtsir.github.io/friend-court/`.
+3. Verify ownership with the recommended HTML file or meta tag method.
+4. Submit `https://pkrtsir.github.io/friend-court/sitemap.xml`.
+5. Use URL Inspection for the homepage and request indexing after each meaningful update.
+
+## Test Social Preview
+
+Use these tools after the GitHub Pages deploy is live:
+
+- Facebook Sharing Debugger: scrape `https://pkrtsir.github.io/friend-court/` again after changing `og-image.png`.
+- X/Twitter Card Validator or a private post draft to check the `summary_large_image` card.
+- LINE, Messenger, Discord, and Slack test chats for real-world preview behavior.
+
+If a platform shows an old image, clear its cache/debugger and confirm `og-image.png` loads directly in the browser.
+
+## Promotion Ideas
+
+Short-form video works best when the first second names a familiar friend crime:
+
+- TikTok/Reels/YouTube Shorts: record the case title, tap through answers quickly, then reveal the verdict card.
+- Facebook: post a screenshot of a verdict and ask friends to tag the guilty person.
+- Group chats: send the Duo Link Mode result setup so the friend has to answer their side.
+
+Suggested captions:
+
+- `คดีนี้ใครผิด? ส่งให้เพื่อนที่อ่านแล้วไม่ตอบ`
+- `ศาลลับกลางคืนตัดสินแล้ว คนในกลุ่มแชตคุณรอดไหม`
+- `แท็กเพื่อนที่บอกว่าใกล้ถึงแล้ว แต่ยังไม่ออกจากบ้าน`
+- `Friend Court judged me. Your turn.`
+- `Send this to the most suspicious friend in the group chat.`
 
 ## Adding Translations
 
