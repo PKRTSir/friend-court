@@ -2806,6 +2806,7 @@ function setLanguage(lang, options = { render: true }) {
     // The switch still works for the current session if storage is unavailable.
   }
   applyDocumentLanguage();
+  trackEvent("switch_language", { language: lang });
   if (options.render) renderCurrentScreen();
 }
 
@@ -3033,6 +3034,7 @@ function renderHome() {
   app.querySelectorAll("[data-start]").forEach((button) => {
     button.addEventListener("click", () => {
       state.mode = button.dataset.start === "duo" ? "duo-menu" : "solo";
+      trackEvent(button.dataset.start === "duo" ? "start_duo" : "start_solo");
       location.hash = button.dataset.start === "duo" ? "#modes" : "#cases";
     });
   });
@@ -3069,6 +3071,7 @@ function renderModes() {
   app.querySelectorAll("[data-mode]").forEach((button) => {
     button.addEventListener("click", () => {
       state.mode = button.dataset.mode;
+      trackEvent("start_duo", { mode: state.mode });
       location.hash = "#cases";
     });
   });
@@ -3136,12 +3139,14 @@ function startCase(caseId) {
 function startRandomFriendCase() {
   const item = cases[Math.floor(Math.random() * cases.length)] || cases[0];
   state.mode = "duo-link-a";
+  trackEvent("start_duo", { mode: "random_friend_case", case_id: item.id });
   startCase(item.id);
 }
 
 function startFriendCaseFromVerdict(verdict) {
   const caseId = verdict.caseId || verdict.player?.caseId || verdict.playerA?.caseId || cases[0].id;
   state.mode = "duo-link-a";
+  trackEvent("start_duo", { mode: "verdict_case", case_id: caseId });
   startCase(caseId);
 }
 
@@ -3227,6 +3232,11 @@ function finishAnswers() {
     state.latestVerdict = makeSoloVerdict(item, scores, state.mode === "daily");
   }
   saveVerdict(state.latestVerdict);
+  trackEvent("complete_case", {
+    case_id: item.id,
+    mode: state.mode,
+    verdict_type: state.latestVerdict.type
+  });
   location.hash = "#verdict";
 }
 
@@ -3673,6 +3683,12 @@ function buildViralVerdictText(verdict) {
   });
 }
 
+function trackEvent(name, params = {}) {
+  if (typeof window.gtag === "function") {
+    window.gtag("event", name, params);
+  }
+}
+
 async function shareSite() {
   const text = t("share.site", { url: SITE_URL });
   if (navigator.share) {
@@ -3689,6 +3705,10 @@ async function shareSite() {
 async function shareVerdict(verdict) {
   const text = verdict.type === "share" ? buildInviteText(verdict) : buildViralVerdictText(verdict);
   const url = getShareUrl(verdict);
+  trackEvent("share_verdict", {
+    case_id: verdict.caseId || verdict.player?.caseId || verdict.playerA?.caseId || "",
+    verdict_type: verdict.type
+  });
   if (navigator.share) {
     try {
       await navigator.share({ title: t("appTitle"), text, url });
@@ -3830,6 +3850,10 @@ function exportVerdictImage(verdict) {
     link.download = `friend-court-${Date.now()}.png`;
     link.href = canvas.toDataURL("image/png");
     link.click();
+    trackEvent("save_result_image", {
+      case_id: verdict.caseId || verdict.player?.caseId || verdict.playerA?.caseId || "",
+      verdict_type: verdict.type
+    });
     showToast(t("toast.imageSaved"));
   } catch (error) {
     copyExportFallback(verdict);

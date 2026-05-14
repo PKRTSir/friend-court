@@ -39,6 +39,33 @@ Then open `http://localhost:8000`.
 5. Select the main branch and root folder.
 6. Save and wait for the GitHub Pages URL.
 
+## Google Analytics 4
+
+The site includes a GA4 Google tag placeholder in `index.html`. It is safe to deploy with the placeholder, but analytics will only be useful after replacing it with a real Measurement ID.
+
+To create a GA4 property:
+
+1. Open Google Analytics.
+2. Create an account or use an existing account.
+3. Create a GA4 property for `Friend Court`.
+4. Add a Web data stream for `https://pkrtsir.github.io/friend-court/`.
+5. Copy the Measurement ID. It should look like `G-ABC123DEFG`.
+
+Where to replace the Measurement ID:
+
+1. Open `index.html`.
+2. Find every `G-XXXXXXXXXX`.
+3. Replace each one with the real GA4 Measurement ID from the Web data stream.
+4. Commit and deploy to GitHub Pages.
+
+How to check Realtime reports:
+
+1. Open Google Analytics.
+2. Go to Reports -> Realtime.
+3. Open `https://pkrtsir.github.io/friend-court/` in a browser.
+4. Click through the game or share/save buttons.
+5. Confirm active users and events such as `start_solo`, `start_duo`, `complete_case`, `share_verdict`, `save_result_image`, and `switch_language`.
+
 ## File Structure
 
 ```text
