@@ -120,8 +120,8 @@ const translations = {
       plaintiffPlaceholder: "เช่น มีนา",
       defendantLabel: "ชื่อจำเลย",
       defendantPlaceholder: "เช่น โอม",
-      required: "กรอกชื่อผู้ฟ้องและจำเลยก่อนเปิดศาลนะ",
-      start: "เริ่มการฟ้องร้อง"
+      required: "ศาลต้องรู้ชื่อผู้ฟ้องกับจำเลยก่อนนะ",
+      start: "⚖️ เริ่มการฟ้องร้อง"
     },
     buttons: {
       solo: "เริ่มเล่น",
@@ -136,7 +136,7 @@ const translations = {
       fileThisCase: "ฟ้องเพื่อนคดีนี้",
       copyVerdict: "คัดลอกคำพิพากษา",
       judgeCase: "⚖️ ตัดสินคดี",
-      sendToDefendant: "📨 ส่งให้จำเลย",
+      sendToDefendant: "📨 แชร์คำพิพากษา",
       saveVerdictImage: "📸 บันทึกคำพิพากษา",
       restartCase: "🔁 ฟ้องคดีใหม่",
       duoSame: "เล่น 2 คนในเครื่องเดียว",
@@ -145,9 +145,10 @@ const translations = {
       nextPlayer: "เริ่มฝั่ง B",
       copyFriendLink: "คัดลอกลิงก์ให้เพื่อน",
       shareText: "แชร์ข้อความ",
-      copyLink: "คัดลอกลิงก์",
+      copyLink: "🔗 คัดลอกลิงก์",
       saveImage: "บันทึกหลักฐานเป็นรูปภาพ",
       playAgain: "เล่นอีกคดี",
+      iphoneSaveHelp: "บน iPhone ให้เลือก Save Image จากหน้าต่างแชร์ หรือแตะค้างที่รูปเพื่อบันทึก",
       home: "กลับหน้าแรก",
       clearHistory: "ลบประวัติ"
     },
@@ -268,8 +269,13 @@ const translations = {
       copied: "คัดลอกเรียบร้อย",
       shareCopied: "คัดลอกคำฟ้องแล้ว ส่งให้จำเลยได้เลย",
       copyFailed: "คัดลอกอัตโนมัติไม่ได้ ลองเลือกข้อความจากการ์ดแทน",
-      imageSaved: "สร้างรูปภาพเรียบร้อย",
-      imageOpened: "เปิดรูปคำพิพากษาในแท็บใหม่แล้ว",
+      imageSaved: "ดาวน์โหลดรูปภาพแล้ว",
+      imageShareReady: "สร้างรูปภาพเรียบร้อย เลือกบันทึกจากหน้าต่างแชร์",
+      imageOpened: "เปิดรูปแล้ว แตะค้างที่รูป แล้วเลือกบันทึกรูปภาพ",
+      imageShareFallback: "แตะค้างที่รูปเพื่อบันทึก แล้วนำไปแชร์ในแชทหรือสตอรี่",
+      imagePopupBlocked: "กรุณาอนุญาต popup แล้วลองใหม่ หรือกดค้างที่รูปเพื่อบันทึก",
+      imageBuildFailed: "ไม่สามารถสร้างรูปภาพได้ กรุณาลองใหม่",
+      shareCancelled: "ยกเลิกการแชร์แล้ว",
       imageFailedCopied: "บันทึกรูปไม่สำเร็จ เลยคัดลอกข้อความแชร์ให้แทน",
       imageFailed: "บันทึกรูปไม่สำเร็จ ลองใช้ปุ่มแชร์ข้อความแทน",
       storageFailed: "พื้นที่บันทึกเต็มหรือถูกปิดไว้"
@@ -306,8 +312,8 @@ const translations = {
       plaintiffPlaceholder: "e.g. Mina",
       defendantLabel: "Defendant name",
       defendantPlaceholder: "e.g. Ohm",
-      required: "Enter both names before opening court.",
-      start: "Start the Case"
+      required: "The court needs both plaintiff and defendant names first.",
+      start: "⚖️ Start the Case"
     },
     buttons: {
       solo: "Play Solo",
@@ -322,7 +328,7 @@ const translations = {
       fileThisCase: "File This Case",
       copyVerdict: "Copy Verdict",
       judgeCase: "⚖️ Judge Case",
-      sendToDefendant: "📨 Send to Defendant",
+      sendToDefendant: "📨 Share Verdict",
       saveVerdictImage: "📸 Save Verdict",
       restartCase: "🔁 New Case",
       duoSame: "Same Phone Trial",
@@ -331,8 +337,9 @@ const translations = {
       nextPlayer: "Bring in Player B",
       copyFriendLink: "Copy Summons Link",
       shareText: "Share Verdict",
-      copyLink: "Copy Link",
+      copyLink: "🔗 Copy Link",
       saveImage: "Save Evidence PNG",
+      iphoneSaveHelp: "On iPhone, choose Save Image from the share sheet or touch and hold the image to save.",
       playAgain: "New Case",
       home: "Back to Court",
       clearHistory: "Clear History"
@@ -454,8 +461,13 @@ const translations = {
       copied: "Copied",
       shareCopied: "Complaint copied. Send it to the defendant.",
       copyFailed: "Copy failed. The court suggests manual screenshot energy.",
-      imageSaved: "PNG verdict saved",
-      imageOpened: "Verdict image opened in a new tab",
+      imageSaved: "PNG image downloaded",
+      imageShareReady: "Image created. Choose Save Image from the share sheet.",
+      imageOpened: "Image opened. Touch and hold it to save.",
+      imageShareFallback: "Touch and hold the image to save it, then share it to chat or stories.",
+      imagePopupBlocked: "Please allow popups and try again, or touch and hold the image to save.",
+      imageBuildFailed: "Could not create image. Please try again.",
+      shareCancelled: "Share cancelled",
       imageFailedCopied: "PNG failed, so the share text got copied instead.",
       imageFailed: "PNG failed. Share the text receipt instead.",
       storageFailed: "Storage is full or disabled"
@@ -2987,6 +2999,7 @@ const state = {
   mode: "solo",
   plaintiffName: "",
   defendantName: "",
+  caseFilter: "all",
   accusationCategory: "",
   accusationId: "",
   evidenceId: "",
@@ -3210,40 +3223,87 @@ function renderHome() {
   renderShell(`
     <section class="signup-screen" aria-labelledby="hero-title">
       <form class="signup-card" data-party-form>
-        <p class="eyebrow">${t("signup.eyebrow")}</p>
-        <h1 id="hero-title">${t("signup.title")}</h1>
-        <label class="field-label" for="plaintiffName">${t("signup.plaintiffLabel")}</label>
-        <input
-          id="plaintiffName"
-          class="party-input"
-          name="plaintiffName"
-          type="text"
-          value="${plaintiffValue}"
-          placeholder="${t("signup.plaintiffPlaceholder")}"
-          autocomplete="name"
-          required
-        />
-        <label class="field-label" for="defendantName">${t("signup.defendantLabel")}</label>
-        <input
-          id="defendantName"
-          class="party-input"
-          name="defendantName"
-          type="text"
-          value="${defendantValue}"
-          placeholder="${t("signup.defendantPlaceholder")}"
-          autocomplete="name"
-          required
-        />
+        <div class="summons-hero-copy">
+          <span class="summons-logo" aria-hidden="true">⚖️</span>
+          <p class="eyebrow">Friend Court</p>
+          <h1 id="hero-title">${t("signup.title")}</h1>
+          <p>${currentLang === "th" ? "ศาลเพื่อน ศาลนี้ตัดสินด้วยความปั่น" : "Friend court, powered by premium chaos."}</p>
+        </div>
+        <div class="summons-document" aria-label="${currentLang === "th" ? "ใบศาลส่งฟ้อง" : "Friend Court summons"}">
+          <span class="summons-corner corner-tl" aria-hidden="true"></span>
+          <span class="summons-corner corner-tr" aria-hidden="true"></span>
+          <span class="summons-corner corner-bl" aria-hidden="true"></span>
+          <span class="summons-corner corner-br" aria-hidden="true"></span>
+          <div class="summons-doc-head">
+            <span class="seal" aria-hidden="true">⚖️</span>
+            <div>
+              <span>CASE NO. FC-0001</span>
+              <strong>${currentLang === "th" ? "ใบศาลส่งฟ้อง" : "Friend Court Summons"}</strong>
+              <small>FRIEND COURT SUMMONS</small>
+            </div>
+          </div>
+          <div class="summons-divider" aria-hidden="true"></div>
+          <p class="summons-legal-line">${currentLang === "th" ? "ศาลขอรับฟังคำฟ้องคดีมิตรภาพไร้สาระแบบมีหลักฐานในใจ" : "The court accepts playful friendship complaints with dramatic evidence."}</p>
+          <div class="summons-fields">
+            <label class="summons-field" for="plaintiffName">
+              <span>${t("signup.plaintiffLabel")}</span>
+              <input
+                id="plaintiffName"
+                class="party-input"
+                name="plaintiffName"
+                type="text"
+                value="${plaintiffValue}"
+                placeholder="${t("signup.plaintiffPlaceholder")}"
+                autocomplete="name"
+                required
+              />
+            </label>
+            <label class="summons-field" for="defendantName">
+              <span>${t("signup.defendantLabel")}</span>
+              <input
+                id="defendantName"
+                class="party-input"
+                name="defendantName"
+                type="text"
+                value="${defendantValue}"
+                placeholder="${t("signup.defendantPlaceholder")}"
+                autocomplete="name"
+                required
+              />
+            </label>
+          </div>
+          <div class="summons-charge">
+            <span>${currentLang === "th" ? "ข้อหา" : "Charge"}</span>
+            <strong>${currentLang === "th" ? "รอศาลพิจารณา" : "Pending court review"}</strong>
+          </div>
+          <div class="summons-stamp">${currentLang === "th" ? "พร้อมยื่นฟ้อง" : "Ready to file"}</div>
+          <div class="summons-signature">
+            <span>${currentLang === "th" ? "ลงชื่อศาล" : "Court signature"}</span>
+            <strong>Friend Court</strong>
+          </div>
+        </div>
+        <p class="form-message" data-form-message aria-live="polite"></p>
         <button class="btn primary big-action" type="submit">${t("signup.start")}</button>
       </form>
     </section>
   `);
   const form = app.querySelector("[data-party-form]");
+  ["plaintiffName", "defendantName"].forEach((name) => {
+    form.elements[name].addEventListener("input", () => {
+      form.elements[name].classList.remove("is-invalid");
+      const message = app.querySelector("[data-form-message]");
+      if (message) message.textContent = "";
+    });
+  });
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     const plaintiffName = form.elements.plaintiffName.value.trim();
     const defendantName = form.elements.defendantName.value.trim();
+    form.elements.plaintiffName.classList.toggle("is-invalid", !plaintiffName);
+    form.elements.defendantName.classList.toggle("is-invalid", !defendantName);
     if (!plaintiffName || !defendantName) {
+      const message = app.querySelector("[data-form-message]");
+      if (message) message.textContent = t("signup.required");
       showToast(t("signup.required"));
       return;
     }
@@ -3291,12 +3351,15 @@ function renderCases() {
     location.hash = "#home";
     return;
   }
+  const featured = getRecommendedCases().slice(0, 4);
+  const filters = getCaseFilters();
+  const visibleCases = cases.filter((item) => state.caseFilter === "all" || getCaseCategoryKey(item) === state.caseFilter);
   renderShell(`
-    <section class="case-flow">
+    <section class="case-flow case-selection-page">
       <div class="case-flow-head">
         <div>
           <p class="eyebrow">${t("cases.eyebrow")}</p>
-          <h1>${t("cases.title")}</h1>
+          <h1><span aria-hidden="true">⚖</span> ${t("cases.title")}</h1>
           <p>${t("cases.intro")}</p>
         </div>
         <div class="party-summary" aria-label="${currentLang === "th" ? "คู่กรณี" : "Parties"}">
@@ -3304,24 +3367,121 @@ function renderCases() {
           <span>${t("caseFlow.defendant")}: <strong>${escapeHtml(state.defendantName)}</strong></span>
         </div>
       </div>
-      <div class="case-grid full-case-list">
-        ${cases.map((item, index) => `
-          <button class="case-card tone-${index % 5}" type="button" data-case="${item.id}">
-            <span class="case-no">${t("cases.caseNo")} ${String(index + 1).padStart(3, "0")}</span>
-            <span class="icon">${item.icon}</span>
-            <strong>${getCaseTitle(item)}</strong>
-            <p>${getCaseDesc(item)}</p>
-            <p class="level">${getCaseLevel(item)}</p>
+      <div class="case-filter-row" aria-label="${currentLang === "th" ? "ตัวกรองคดี" : "Case filters"}">
+        ${filters.map((filter) => `
+          <button class="case-filter ${state.caseFilter === filter.id ? "is-active" : ""}" type="button" data-case-filter="${filter.id}">
+            ${filter.label}
           </button>
         `).join("")}
       </div>
+      <div class="case-feature-panel">
+        <div>
+          <p class="eyebrow"><span aria-hidden="true">⚖️</span> ${currentLang === "th" ? "คดีฮอตในศาลวันนี้" : "Hot cases today"}</p>
+          <div class="featured-case-row">
+            ${featured.map((item, index) => `
+              <button class="featured-case-chip" type="button" data-case="${item.id}">
+                <span class="featured-dot" aria-hidden="true">${getCaseDisplayIcon(item)}</span>
+                <strong>${getCaseTitle(item)}</strong>
+              </button>
+            `).join("")}
+          </div>
+        </div>
+        <button class="court-random-ticket" type="button" data-random-case>
+          <span aria-hidden="true">⚖️</span>
+          <strong>${currentLang === "th" ? "ศาลสุ่มคดีให้" : "Random Court Case"}</strong>
+          <small>${currentLang === "th" ? "ให้ศาลเลือกคดีให้อัตโนมัติ" : "Let the court choose automatically"}</small>
+        </button>
+      </div>
+      <div class="case-grid full-case-list">
+        ${visibleCases.map(renderCaseFileCard).join("")}
+      </div>
+      <div class="case-archive-footer"><span></span> ${currentLang === "th" ? "เลือกคดีที่ต้องการฟ้อง แล้วศาลจะเริ่มพิจารณา" : "Choose a case and the court will begin review"} <span></span></div>
     </section>
   `);
+  app.querySelectorAll("[data-case-filter]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.caseFilter = button.dataset.caseFilter;
+      renderCases();
+    });
+  });
   app.querySelectorAll("[data-case]").forEach((button) => {
     button.addEventListener("click", () => {
       startCase(button.dataset.case);
     });
   });
+  app.querySelectorAll("[data-random-case]").forEach((button) => {
+    button.addEventListener("click", startRandomFriendCase);
+  });
+}
+
+function renderCaseFileCard(item, index) {
+  const originalIndex = cases.findIndex((caseItem) => caseItem.id === item.id);
+  const fileNo = String(originalIndex + 1).padStart(3, "0");
+  const stamp = getCaseStamp(item, originalIndex);
+  return `
+    <button class="case-card case-file-card tone-${index % 5}" type="button" data-case="${item.id}">
+      <span class="case-stamp ${stamp.tone}">${stamp.text}</span>
+      <span class="case-no">CASE FILE NO. FC-${fileNo}</span>
+      <span class="case-file-id">FC-${String(2026 + originalIndex).slice(-2)}-${fileNo}</span>
+      <span class="case-title-row"><span class="case-mini-icon" aria-hidden="true">${getCaseDisplayIcon(item)}</span><strong>${getCaseTitle(item)}</strong></span>
+      <p><span>${currentLang === "th" ? "คำร้อง:" : "Petition:"}</span> ${getCaseDesc(item)}</p>
+    </button>
+  `;
+}
+
+function getCaseFilters() {
+  return currentLang === "th"
+    ? [
+      { id: "all", label: "ทั้งหมด" },
+      { id: "chat", label: "คดีแชท" },
+      { id: "food", label: "คดีอาหาร" },
+      { id: "plan", label: "คดีนัดหมาย" },
+      { id: "money", label: "คดีเงิน" },
+      { id: "game", label: "คดีเกม" },
+      { id: "habit", label: "คดีนิสัย" }
+    ]
+    : [
+      { id: "all", label: "All" },
+      { id: "chat", label: "Chat" },
+      { id: "food", label: "Food" },
+      { id: "plan", label: "Plans" },
+      { id: "money", label: "Money" },
+      { id: "game", label: "Game" },
+      { id: "habit", label: "Habits" }
+    ];
+}
+
+function getCaseCategoryKey(item) {
+  const title = `${getCaseTitle(item)} ${getCaseDesc(item)} ${item.id}`;
+  if (/แชต|ตอบ|สติกเกอร์|วอยซ์|อ่าน|ประเด็น|Chat|Reply|Sticker|Voice|read|topic|lurker/i.test(title)) return "chat";
+  if (/ข้าว|กิน|หิว|อาหาร|ร้าน|Food|Restaurant|Hungry|Fries|snack|extra-food/i.test(title)) return "food";
+  if (/นัด|สาย|ตื่น|คิว|ทาง|แพลน|Plan|Queue|Late|Map|almost|wake|weather/i.test(title)) return "plan";
+  if (/เงิน|บิล|ยืม|ชาร์จ|Bill|Borrow|Charger|receipt|money/i.test(title)) return "money";
+  if (/เกม|Game|Episode|Playlist|clip|spoiler/i.test(title)) return "game";
+  return "habit";
+}
+
+function getCaseDisplayIcon(item) {
+  const category = getCaseCategoryKey(item);
+  return {
+    chat: "💬",
+    food: "🍽",
+    plan: "◷",
+    money: "฿",
+    game: "◆",
+    habit: "§"
+  }[category] || "§";
+}
+
+function getCaseStamp(item, index) {
+  const stamps = currentLang === "th"
+    ? ["รับฟ้องแล้ว", "รอพิจารณา", "หลักฐานแน่น", "คดีน่าสงสัย", "ศาลรับคำร้อง"]
+    : ["Filed", "Pending Review", "Evidence Strong", "Suspicious Case", "Petition Accepted"];
+  const tones = ["is-red", "is-gold"];
+  return {
+    text: stamps[index % stamps.length],
+    tone: tones[index % tones.length]
+  };
 }
 
 function renderInterrogation(step) {
@@ -3675,8 +3835,12 @@ function renderVerdict() {
     <section class="verdict-wrap">
       ${renderVerdictCard(verdict)}
       <aside class="verdict-actions" aria-label="${t("verdict.actionsLabel")}">
-        <button class="btn pink big-action" type="button" data-copy-verdict>${t("buttons.sendToDefendant")}</button>
-        <button class="btn" type="button" data-save-image>${t("buttons.saveVerdictImage")}</button>
+        <button class="btn pink big-action" type="button" data-share-image>${t("buttons.sendToDefendant")}</button>
+        <button class="btn ghost" type="button" data-copy-link>${t("buttons.copyLink")}</button>
+        <div class="save-image-block">
+          <button class="btn" type="button" data-save-image>${t("buttons.saveVerdictImage")}</button>
+          <p>${t("buttons.iphoneSaveHelp")}</p>
+        </div>
         <button class="btn ghost" type="button" data-play-again>${t("buttons.restartCase")}</button>
       </aside>
     </section>
@@ -3853,8 +4017,8 @@ function bindVerdictActions(verdict) {
   app.querySelectorAll("[data-file-this-case]").forEach((button) => {
     button.addEventListener("click", () => startFriendCaseFromVerdict(verdict));
   });
-  app.querySelectorAll("[data-copy-verdict]").forEach((button) => {
-    button.addEventListener("click", () => shareVerdict(verdict));
+  app.querySelectorAll("[data-share-image]").forEach((button) => {
+    button.addEventListener("click", () => exportVerdictImage(verdict, "share"));
   });
   app.querySelectorAll("[data-copy-link]").forEach((button) => {
     button.addEventListener("click", () => copyText(getShareUrl(verdict)));
@@ -4257,7 +4421,7 @@ function legacyCopyText(text) {
   }
 }
 
-function exportVerdictImage(verdict) {
+async function exportVerdictImage(verdict, mode = "save") {
   try {
     const canvas = document.querySelector("#exportCanvas");
     const ctx = canvas.getContext("2d");
@@ -4355,36 +4519,149 @@ function exportVerdictImage(verdict) {
     ctx.fillStyle = "#64748B";
     drawWrappedText(ctx, t("export.disclaimer"), 130, 1240, 720, 30, canvasFont(700, 24), 1);
 
-    const openedFallback = saveCanvasPng(canvas);
-    trackEvent("save_result_image", {
+    if (mode === "share") {
+      await shareCanvasPng(canvas);
+    } else {
+      await saveCanvasPng(canvas);
+    }
+    trackEvent(mode === "share" ? "share_verdict" : "save_result_image", {
       case_id: verdict.caseId || verdict.player?.caseId || verdict.playerA?.caseId || "",
       verdict_type: verdict.type
     });
-    if (!openedFallback) showToast(t("toast.imageSaved"));
   } catch (error) {
+    console.warn("Verdict image export failed:", error);
     copyExportFallback(verdict);
   }
 }
 
-function saveCanvasPng(canvas) {
-  const dataUrl = canvas.toDataURL("image/png");
+async function saveCanvasPng(canvas) {
+  const blob = await canvasToBlob(canvas);
+  if (!blob) {
+    showToast(t("toast.imageBuildFailed"));
+    return;
+  }
+  const file = createVerdictImageFile(blob);
+  if (file && navigator.canShare?.({ files: [file] }) && typeof navigator.share === "function") {
+    try {
+      await navigator.share({
+        title: "Friend Court",
+        text: "คำพิพากษาจาก Friend Court ⚖️",
+        files: [file]
+      });
+      showToast(t("toast.imageShareReady"));
+      return;
+    } catch (error) {
+      console.warn("Image share cancelled or failed:", error);
+    }
+  }
+  const imageUrl = URL.createObjectURL(blob);
+  if (isIOSDevice()) {
+    const imageWindow = window.open(imageUrl, "_blank");
+    if (!imageWindow) {
+      showToast(t("toast.imagePopupBlocked"));
+      URL.revokeObjectURL(imageUrl);
+      return;
+    }
+    showToast(t("toast.imageOpened"));
+    window.setTimeout(() => URL.revokeObjectURL(imageUrl), 60000);
+    return;
+  }
   const link = document.createElement("a");
   link.download = "friend-court-verdict.png";
-  link.href = dataUrl;
+  link.href = imageUrl;
   if (typeof link.download === "string") {
     document.body.appendChild(link);
     link.click();
     link.remove();
-    return false;
+    showToast(t("toast.imageSaved"));
+    window.setTimeout(() => URL.revokeObjectURL(imageUrl), 60000);
+    return;
   }
-  const imageWindow = window.open();
+  const imageWindow = window.open(imageUrl, "_blank");
   if (imageWindow) {
-    imageWindow.document.write(`<img src="${dataUrl}" alt="Friend Court verdict" style="max-width:100%;height:auto;" />`);
     showToast(t("toast.imageOpened"));
-    return true;
+    window.setTimeout(() => URL.revokeObjectURL(imageUrl), 60000);
+    return;
   }
-  window.location.href = dataUrl;
-  return true;
+  window.location.href = imageUrl;
+  showToast(t("toast.imageOpened"));
+  window.setTimeout(() => URL.revokeObjectURL(imageUrl), 60000);
+}
+
+async function shareCanvasPng(canvas) {
+  const blob = await canvasToBlob(canvas);
+  if (!blob) {
+    showToast(t("toast.imageBuildFailed"));
+    return;
+  }
+  const file = createVerdictImageFile(blob);
+  if (file && navigator.canShare?.({ files: [file] }) && typeof navigator.share === "function") {
+    try {
+      await navigator.share({
+        title: "Friend Court",
+        text: "คำพิพากษาจาก Friend Court ⚖️",
+        files: [file]
+      });
+      return;
+    } catch (error) {
+      if (isShareCancelled(error)) {
+        showToast(t("toast.shareCancelled"));
+        return;
+      }
+      console.warn("Image share failed:", error);
+    }
+  }
+  openBlobImage(blob, t("toast.imageShareFallback"));
+}
+
+function createVerdictImageFile(blob) {
+  return typeof File === "function"
+    ? new File([blob], "friend-court-verdict.png", { type: "image/png" })
+    : null;
+}
+
+function openBlobImage(blob, message) {
+  const imageUrl = URL.createObjectURL(blob);
+  const imageWindow = window.open(imageUrl, "_blank");
+  if (!imageWindow) {
+    showToast(t("toast.imagePopupBlocked"));
+    URL.revokeObjectURL(imageUrl);
+    return;
+  }
+  showToast(message);
+  window.setTimeout(() => URL.revokeObjectURL(imageUrl), 60000);
+}
+
+function isShareCancelled(error) {
+  return error?.name === "AbortError" || /cancel/i.test(error?.message || "");
+}
+
+function canvasToBlob(canvas) {
+  return new Promise((resolve) => {
+    if (!canvas.toBlob) {
+      resolve(dataUrlToBlob(canvas.toDataURL("image/png")));
+      return;
+    }
+    canvas.toBlob((blob) => resolve(blob), "image/png");
+  });
+}
+
+function dataUrlToBlob(dataUrl) {
+  try {
+    const [meta, data] = dataUrl.split(",");
+    const mime = meta.match(/:(.*?);/)?.[1] || "image/png";
+    const binary = atob(data);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+    return new Blob([bytes], { type: mime });
+  } catch (error) {
+    return null;
+  }
+}
+
+function isIOSDevice() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent)
+    || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 }
 
 function copyExportFallback(verdict) {
