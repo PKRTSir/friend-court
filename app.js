@@ -4,11 +4,92 @@
 const AXES = ["chaos", "honesty", "responsibility", "drama", "ghosting", "snackEnergy"];
 const STORAGE_KEY = "friendCourtState.v1";
 const LANG_STORAGE_KEY = "friendCourtLang";
+const PARTY_STORAGE_KEY = "friendCourtParties.v1";
 const SHARE_PARAM = "friendcase";
 const SUPPORTED_LANGS = ["th", "en"];
 const LANGUAGE_FLAGS = { th: "🇹🇭", en: "🇬🇧" };
 const SITE_URL = "https://pkrtsir.github.io/friend-court/";
 const RECOMMENDED_CASE_IDS = ["read-no-reply", "almost-there", "food-choice", "not-hungry"];
+const ACCUSATION_CATEGORIES = [
+  {
+    id: "food",
+    icon: "🍜",
+    label: localText("คดีอาหาร", "Food case"),
+    accusations: [
+      ["not-hungry", "บอกไม่หิว แต่แย่งกิน", "Not hungry, still stole bites"],
+      ["one-bite", "ขอคำเดียว แต่หมดไปครึ่งจาน", "One bite became half the plate"],
+      ["anything-food", "ถามว่าจะกินอะไร แล้วตอบว่า “อะไรก็ได้”", "Asked what to eat, then said anything"],
+      ["food-photo", "ถ่ายรูปอาหารนานจนเพื่อนหิวตาลาย", "Food photo shoot made everyone dizzy"]
+    ]
+  },
+  {
+    id: "chat",
+    icon: "💬",
+    label: localText("คดีแชท", "Chat case"),
+    accusations: [
+      ["read-no-reply", "อ่านแล้วไม่ตอบ", "Read, no reply"],
+      ["haha-ghost", "ตอบว่า “555” แล้วหาย", "Sent haha, then vanished"],
+      ["drop-topic", "เปิดประเด็นเอง แต่ไม่เล่าต่อ", "Started drama, refused episode two"],
+      ["sticker-only", "ส่งสติกเกอร์แทนคำตอบทุกสถานการณ์", "Sticker-only communication"]
+    ]
+  },
+  {
+    id: "game",
+    icon: "🎮",
+    label: localText("คดีเกม", "Game case"),
+    accusations: [
+      ["game-ghost", "ชวนเล่นเกมแล้วหายจากล็อบบี้", "Invited everyone, left the lobby"],
+      ["one-more-round", "บอกตาสุดท้ายมาแล้ว 8 ตา", "Final round lasted eight rounds"],
+      ["loot-chaos", "แย่งของดรอปแล้วบอกว่าไม่เห็น", "Loot vanished into their bag"],
+      ["rank-excuse", "แพ้แล้วโทษเน็ต โทษจอย โทษดาวเสาร์", "Blamed lag, controller, and Saturn"]
+    ]
+  },
+  {
+    id: "money",
+    icon: "💸",
+    label: localText("คดีเงิน", "Money case"),
+    accusations: [
+      ["split-bill", "หารบิลแล้วปัดเศษเข้าข้างตัวเอง", "Bill split got suspiciously creative"],
+      ["forget-transfer", "บอกว่าโอนแล้ว แต่สลิปยังอยู่ในจินตนาการ", "Transfer receipt lives in imagination"],
+      ["borrow-small", "ยืมนิดเดียว แต่นิดเดียวหลายรอบ", "Tiny loans became a subscription"],
+      ["coupon-drama", "ใช้คูปองตัวเอง แต่ให้เพื่อนหารราคาเต็ม", "Used coupon, split full price"]
+    ]
+  },
+  {
+    id: "late",
+    icon: "⏰",
+    label: localText("คดีนัดแล้วเลท", "Late case"),
+    accusations: [
+      ["almost-there", "บอก “ใกล้ถึงแล้ว” แต่เพิ่งอาบน้ำ", "Almost there, still showering"],
+      ["legend-late", "เลททุกนัดจนกลายเป็นตำนาน", "Late enough to become folklore"],
+      ["outfit-delay", "ให้คนอื่นรอ แต่ตัวเองยังเลือกชุดอยู่", "Everyone waited while outfit court opened"],
+      ["forgot-own-plan", "นัดเองแต่ลืมเอง", "Made the plan, forgot the plan"]
+    ]
+  },
+  {
+    id: "habit",
+    icon: "🙃",
+    label: localText("คดีนิสัยเพื่อน", "Friend habit case"),
+    accusations: [
+      ["anything-but-no", "พูดว่าอะไรก็ได้ แต่ปฏิเสธทุกอย่าง", "Anything is fine, except everything"],
+      ["borrow-charger", "ยืมที่ชาร์จแล้วทำเหมือนเป็นมรดก", "Borrowed charger, inherited it"],
+      ["voice-note", "ส่งวอยซ์ยาวเหมือนแถลงข่าว", "Voice note became a press conference"],
+      ["photo-hostage", "ถ่ายรูปให้เพื่อน แต่ไม่เคยส่ง", "Took photos, held them hostage"]
+    ]
+  }
+];
+const EVIDENCE_OPTIONS = [
+  { id: "solid", icon: "📸", label: localText("แน่นมาก มีแคปหน้าจอพร้อมขึ้นศาล", "Solid screenshots, ready for court"), weight: 22 },
+  { id: "witness", icon: "👀", label: localText("มีพยานทั้งโต๊ะ ทุกคนพยักหน้า", "The whole table witnessed it"), weight: 16 },
+  { id: "vibes", icon: "🧾", label: localText("หลักฐานบาง แต่ความรู้สึกแน่น", "Evidence thin, vibes strong"), weight: 8 },
+  { id: "chaos", icon: "🤏", label: localText("มีแค่ความทรงจำกับความมั่นใจ", "Only memory and confidence"), weight: 2 }
+];
+const REMORSE_OPTIONS = [
+  { id: "sorry", icon: "🥺", label: localText("สำนึกอยู่ แต่ยังขำตัวเอง", "Sorry, but still laughing"), weight: -12 },
+  { id: "deny", icon: "😎", label: localText("ไม่สำนึก แถมทำหน้ามั่น", "No remorse, fully smug"), weight: 16 },
+  { id: "excuse", icon: "🙄", label: localText("มีข้ออ้าง 4 หน้า A4", "Four pages of excuses"), weight: 10 },
+  { id: "bribe", icon: "🍟", label: localText("พยายามไถ่โทษด้วยของกิน", "Trying to bribe with snacks"), weight: -6 }
+];
 let currentLang = "th";
 let lastRouteHash = "home";
 
@@ -32,6 +113,16 @@ const translations = {
       docketTitle: "อ่านแล้วไม่ตอบ",
       docketStamp: "น่าสงสัย"
     },
+    signup: {
+      eyebrow: "⚖️ เปิดศาลเพื่อน",
+      title: "ลงนามการฟ้องร้อง",
+      plaintiffLabel: "ชื่อผู้ฟ้อง",
+      plaintiffPlaceholder: "เช่น มีนา",
+      defendantLabel: "ชื่อจำเลย",
+      defendantPlaceholder: "เช่น โอม",
+      required: "กรอกชื่อผู้ฟ้องและจำเลยก่อนเปิดศาลนะ",
+      start: "เริ่มการฟ้องร้อง"
+    },
     buttons: {
       solo: "เริ่มเล่น",
       duo: "ฟ้องเพื่อน",
@@ -44,6 +135,10 @@ const translations = {
       randomCase: "สุ่มคดี",
       fileThisCase: "ฟ้องเพื่อนคดีนี้",
       copyVerdict: "คัดลอกคำพิพากษา",
+      judgeCase: "⚖️ ตัดสินคดี",
+      sendToDefendant: "📨 ส่งให้จำเลย",
+      saveVerdictImage: "📸 บันทึกคำพิพากษา",
+      restartCase: "🔁 ฟ้องคดีใหม่",
       duoSame: "เล่น 2 คนในเครื่องเดียว",
       duoLink: "ส่งลิงก์ให้เพื่อน",
       acceptLink: "เริ่มตอบฝั่งของฉัน",
@@ -69,6 +164,24 @@ const translations = {
       linkIntro: "เพื่อนเปิดคดีแล้ว ถึงตาคุณ",
       caseNo: "CASE"
     },
+    caseFlow: {
+      eyebrow: "เลือกสำนวน",
+      title: "ศาลขอไต่สวนสั้น ๆ",
+      intro: "ตอบไม่กี่ข้อ เดี๋ยวศาลจัดคำพิพากษาให้",
+      plaintiff: "ผู้ฟ้อง",
+      defendant: "จำเลย",
+      random: "สุ่มคดี",
+      selected: "คดีที่เลือก",
+      step: "ขั้นที่ {current}/{total}",
+      categoryQuestion: "วันนี้จะฟ้องจำเลยเรื่องอะไร?",
+      accusationQuestion: "ข้อกล่าวหาหลักคืออะไร?",
+      evidenceQuestion: "หลักฐานแน่นแค่ไหน?",
+      remorseQuestion: "จำเลยดูสำนึกไหม?",
+      readyTitle: "สำนวนครบแล้ว",
+      readyCopy: "ศาลพร้อมเคาะโต๊ะ ใครจะรอดใครจะร่วงรู้กัน",
+      randomCourt: "สุ่มคดีให้ศาล",
+      changeAnswer: "แก้คำตอบ"
+    },
     linkInvite: {
       eyebrow: "มีหมายเรียกจากเพื่อน",
       subtitle: "เพื่อนตอบฝั่งแรกไว้แล้ว ตอนนี้ศาลต้องการคำให้การของคุณเพื่อออกคำตัดสินคู่"
@@ -79,7 +192,7 @@ const translations = {
       item: "ข้อ {current}/{total}",
       player: "ผู้เล่น {player}",
       friendSide: "ฝั่งเพื่อน",
-      answerMarks: ["ก", "ข", "ค", "ง"]
+      answerMarks: ["ก", "ข", "ค", "ง", "จ", "ฉ"]
     },
     between: {
       eyebrow: "ฝั่ง A ให้การเสร็จแล้ว",
@@ -109,6 +222,20 @@ const translations = {
       duoStatusLow: "สถานะ: ควรกินข้าวก่อนคุยต่อ",
       both: "ทั้งคู่"
     },
+    verdictCard: {
+      plaintiff: "ผู้ฟ้อง",
+      defendant: "จำเลย",
+      caseTitle: "คดี",
+      verdict: "คำพิพากษา",
+      punishment: "บทลงโทษ",
+      cta: "ส่งคดีนี้ให้เพื่อนเล่นต่อที่ Friend Court",
+      guilty: "จำเลยมีความผิด",
+      acquitted: "จำเลยพ้นผิด",
+      sadReaction: "จำเลยเสียอาการ",
+      happyReaction: "จำเลยยิ้มมุมปาก",
+      guiltyOrder: "{defendant} มีพิรุธแบบน่าเอ็นดู ศาลสั่งให้รับโทษขำ ๆ เพื่อความสงบของแชตกลุ่ม",
+      acquittedOrder: "หลักฐานยังจับ {defendant} ไม่อยู่ ศาลให้พ้นผิดชั่วคราว แต่ขอจับตาในแชตกลุ่มต่อ"
+    },
     history: {
       eyebrow: "คลังคำตัดสิน",
       title: "ประวัติศาลเพื่อน",
@@ -134,12 +261,15 @@ const translations = {
       duo: "ศาลเพื่อนตัดสินแล้ว: {caseTitle} | {title} | A {a}% B {b}% | เข้ากัน {compatibility}%",
       invite: "มีหมายเรียกจากศาลเพื่อนสนิท: {caseTitle} มาตอบฝั่งของเธอหน่อย {url}",
       verdict: "ศาลตัดสินแล้ว! ฉันได้ผลว่า: {verdictTitle} ในคดี {caseTitle} ลองมาให้ศาลตัดสินบ้าง: {url}",
+      defendantVerdict: "ฉันส่งฟ้องคุณใน Friend Court แล้ว ⚖️ มาดูคำพิพากษา: {url}",
       site: "คดีนี้ใครผิด? ฟ้องเพื่อน แล้วให้ศาลลับกลางคืนตัดสินคดีไร้สาระแบบขำ ๆ {url}"
     },
     toast: {
       copied: "คัดลอกเรียบร้อย",
+      shareCopied: "คัดลอกคำฟ้องแล้ว ส่งให้จำเลยได้เลย",
       copyFailed: "คัดลอกอัตโนมัติไม่ได้ ลองเลือกข้อความจากการ์ดแทน",
       imageSaved: "สร้างรูปภาพเรียบร้อย",
+      imageOpened: "เปิดรูปคำพิพากษาในแท็บใหม่แล้ว",
       imageFailedCopied: "บันทึกรูปไม่สำเร็จ เลยคัดลอกข้อความแชร์ให้แทน",
       imageFailed: "บันทึกรูปไม่สำเร็จ ลองใช้ปุ่มแชร์ข้อความแทน",
       storageFailed: "พื้นที่บันทึกเต็มหรือถูกปิดไว้"
@@ -169,6 +299,16 @@ const translations = {
       docketTitle: "Read, No Reply",
       docketStamp: "Looks Sus"
     },
+    signup: {
+      eyebrow: "⚖️ Open Friend Court",
+      title: "Sign the Complaint",
+      plaintiffLabel: "Plaintiff name",
+      plaintiffPlaceholder: "e.g. Mina",
+      defendantLabel: "Defendant name",
+      defendantPlaceholder: "e.g. Ohm",
+      required: "Enter both names before opening court.",
+      start: "Start the Case"
+    },
     buttons: {
       solo: "Play Solo",
       duo: "File a Friend Case",
@@ -181,6 +321,10 @@ const translations = {
       randomCase: "Random Case",
       fileThisCase: "File This Case",
       copyVerdict: "Copy Verdict",
+      judgeCase: "⚖️ Judge Case",
+      sendToDefendant: "📨 Send to Defendant",
+      saveVerdictImage: "📸 Save Verdict",
+      restartCase: "🔁 New Case",
       duoSame: "Same Phone Trial",
       duoLink: "Send Court Link",
       acceptLink: "Give My Statement",
@@ -206,6 +350,24 @@ const translations = {
       linkIntro: "Your friend opened the case. Your turn to look innocent.",
       caseNo: "CASE"
     },
+    caseFlow: {
+      eyebrow: "Choose the File",
+      title: "A Tiny Court Interrogation",
+      intro: "Answer a few things and the court will judge.",
+      plaintiff: "Plaintiff",
+      defendant: "Defendant",
+      random: "Random Case",
+      selected: "Selected case",
+      step: "Step {current}/{total}",
+      categoryQuestion: "What are you filing today?",
+      accusationQuestion: "What is the main accusation?",
+      evidenceQuestion: "How strong is the evidence?",
+      remorseQuestion: "Does the defendant look sorry?",
+      readyTitle: "The file is ready",
+      readyCopy: "Court is ready to slam the stamp.",
+      randomCourt: "Let Court Randomize",
+      changeAnswer: "Change answers"
+    },
     linkInvite: {
       eyebrow: "You’ve been summoned",
       subtitle: "Your friend already testified. The court needs your side before the final roast."
@@ -216,7 +378,7 @@ const translations = {
       item: "Exhibit {current}/{total}",
       player: "Player {player}",
       friendSide: "Friend side",
-      answerMarks: ["A", "B", "C", "D"]
+      answerMarks: ["A", "B", "C", "D", "E", "F"]
     },
     between: {
       eyebrow: "Player A has spoken",
@@ -246,6 +408,20 @@ const translations = {
       duoStatusLow: "Friendship Vibe: feed them first",
       both: "Both besties"
     },
+    verdictCard: {
+      plaintiff: "Plaintiff",
+      defendant: "Defendant",
+      caseTitle: "Case",
+      verdict: "Verdict",
+      punishment: "Sentence",
+      cta: "Send this case to a friend at Friend Court",
+      guilty: "Defendant is guilty",
+      acquitted: "Defendant is cleared",
+      sadReaction: "Defendant is losing composure",
+      happyReaction: "Defendant looks smug",
+      guiltyOrder: "{defendant} is suspicious in a charming way. The court orders a funny sentence for group chat peace.",
+      acquittedOrder: "The evidence cannot catch {defendant} today. The court clears the defendant for now, but the group chat is watching."
+    },
     history: {
       eyebrow: "Verdict Vault",
       title: "Court Receipts",
@@ -271,12 +447,15 @@ const translations = {
       duo: "Friend Court ruled on {caseTitle}: {title}. A is {a}% sus, B is {b}% sus, friend sync {compatibility}%.",
       invite: "Friend Court summons you for {caseTitle}. Enter the courtroom: {url}",
       verdict: "Friend Court has judged me: {verdictTitle} in {caseTitle}. Try your case here: {url}",
+      defendantVerdict: "I filed a Friend Court case against you ⚖️ See the verdict: {url}",
       site: "Who is guilty? File a silly friend case and let Midnight Court decide. {url}"
     },
     toast: {
       copied: "Copied",
+      shareCopied: "Complaint copied. Send it to the defendant.",
       copyFailed: "Copy failed. The court suggests manual screenshot energy.",
       imageSaved: "PNG verdict saved",
+      imageOpened: "Verdict image opened in a new tab",
       imageFailedCopied: "PNG failed, so the share text got copied instead.",
       imageFailed: "PNG failed. Share the text receipt instead.",
       storageFailed: "Storage is full or disabled"
@@ -1076,6 +1255,52 @@ const improvedEnglishCaseCopy = {
 };
 
 Object.assign(caseTranslations, improvedEnglishCaseCopy);
+
+const QUESTION_OPTION_COUNT = 6;
+
+function buildExtraQuestionChoices(questionText) {
+  const text = String(questionText || "");
+  if (/หลักฐาน|evidence|proof|caught|caught|caught/i.test(text)) {
+    return [
+      cx("เรียกพยานแชตกลุ่มขึ้นเบิกความ", "Summon the group chat as witness", { drama: 2, honesty: 2, chaos: 1 }),
+      cx("ยื่นหลักฐานแบบมั่นใจ แม้ไฟล์ชื่อ final_final", "Submit confident evidence named final_final", { responsibility: 1, drama: 2, chaos: 1 })
+    ];
+  }
+  if (/ศาล|โทษ|คำสั่ง|บทเรียน|แก้|ป้องกัน|ครั้งหน้า|rule|order|sentence|solution|lesson|next time/i.test(text)) {
+    return [
+      cx("ยอมรับคำสั่งศาล แล้วทำหน้าสำนึกประมาณ 60%", "Accept the order with 60% remorse face", { honesty: 2, responsibility: 2, drama: 1 }),
+      cx("ขอลดโทษด้วยของกินและสัญญาว่าจะไม่ทำซ้ำ", "Request reduced sentence with snacks and a promise", { snackEnergy: 3, honesty: 1, responsibility: 1 })
+    ];
+  }
+  if (/กิน|อาหาร|ข้าว|ร้าน|เมนู|ขนม|หิว|จาน|food|eat|snack|menu|restaurant|hungry/i.test(text)) {
+    return [
+      cx("ขอให้ศาลพักกินก่อนหนึ่งคำแล้วค่อยตอบ", "Ask the court for one bite before answering", { snackEnergy: 3, chaos: 1 }),
+      cx("เสนอทางออกที่ทุกคนอิ่มและไม่มีใครต้องรับบทคนเลือก", "Offer a full-belly solution with no chooser burden", { responsibility: 2, snackEnergy: 2, honesty: 1 })
+    ];
+  }
+  if (/แชต|ข้อความ|ตอบ|เพื่อน|พิมพ์|กลุ่ม|chat|message|reply|friend|text/i.test(text)) {
+    return [
+      cx("ตอบตรง ๆ ก่อน แล้วค่อยส่งมีมปิดท้าย", "Answer clearly first, then close with a meme", { honesty: 2, responsibility: 2, chaos: 1 }),
+      cx("เรียกประชุมแชตกลุ่มเพื่อไกล่เกลี่ยแบบวุ่นนิด ๆ", "Call a tiny chaotic group-chat mediation", { drama: 2, chaos: 2, honesty: 1 })
+    ];
+  }
+  if (/เกม|ล็อบบี้|ตา|ออนไลน์|game|lobby|online|round/i.test(text)) {
+    return [
+      cx("กดพร้อมเล่นทันทีเหมือนมีหมายเรียกศาล", "Ready up like a court summons arrived", { responsibility: 3, honesty: 1 }),
+      cx("ขออีกหนึ่งนาทีที่ศาลไม่ค่อยเชื่อ", "Ask for one minute the court barely believes", { chaos: 2, ghosting: 1, drama: 1 })
+    ];
+  }
+  if (/รูป|ถ่าย|กล้อง|photo|camera|picture/i.test(text)) {
+    return [
+      cx("ส่งรูปก่อนศาลหมดความอดทน", "Send photos before the court loses patience", { responsibility: 3, honesty: 1 }),
+      cx("ขอคัดรูปอีกนิดแบบผู้กำกับหลักฐาน", "Curate a little more like evidence director", { drama: 2, chaos: 1, ghosting: 1 })
+    ];
+  }
+  return [
+    cx("ขอให้ศาลบันทึกว่าเจตนาดี แต่วิธีทำวุ่น", "Ask the court to note good intent, chaotic method", { honesty: 2, chaos: 2, drama: 1 }),
+    cx("โยนให้แชตกลุ่มตัดสิน แล้วทำหน้าไม่รู้ไม่ชี้", "Let the group chat judge and act innocent", { ghosting: 1, drama: 2, chaos: 2 })
+  ];
+}
 
 const CASE_QUESTION_SETS = {
   "read-no-reply": [
@@ -2760,6 +2985,12 @@ const friendshipTitleTranslations = [
 const state = {
   view: "home",
   mode: "solo",
+  plaintiffName: "",
+  defendantName: "",
+  accusationCategory: "",
+  accusationId: "",
+  evidenceId: "",
+  remorseId: "",
   selectedCaseId: null,
   answers: [],
   playerA: null,
@@ -2777,6 +3008,7 @@ window.addEventListener("hashchange", routeFromHash);
 
 function init() {
   currentLang = loadLanguage();
+  loadSavedParties();
   applyDocumentLanguage();
   const payload = readShareParam();
   if (payload) {
@@ -2949,6 +3181,8 @@ function renderHashRoute(hash, routes) {
 }
 
 function renderShell(content) {
+  const route = location.hash.replace("#", "") || "home";
+  const showNavButtons = route !== "home";
   app.innerHTML = `
     <div class="view">
       <nav class="topbar" aria-label="${currentLang === "th" ? "เมนูหลัก" : "Main menu"}">
@@ -2958,8 +3192,10 @@ function renderShell(content) {
         </a>
         <div class="nav-actions">
           ${renderLanguageSwitcher()}
+          ${showNavButtons ? `
           <button class="btn ghost" type="button" data-action="history">${t("nav.history")}</button>
           <button class="btn ghost" type="button" data-action="home">${t("nav.home")}</button>
+          ` : ""}
         </div>
       </nav>
       ${content}
@@ -2969,83 +3205,55 @@ function renderShell(content) {
 }
 
 function renderHome() {
+  const plaintiffValue = escapeHtml(state.plaintiffName);
+  const defendantValue = escapeHtml(state.defendantName);
   renderShell(`
-    <section class="hero" aria-labelledby="hero-title">
-      <div class="hero-card">
-        <div class="hero-copy">
-          <p class="eyebrow">${t("landing.eyebrow")}</p>
-          <span class="court-badge">⚖️ ${t("appBadge")}</span>
-          <h1 id="hero-title">${t("appTitle")}</h1>
-          <p class="subtitle">${t("landing.subtitle")}</p>
-          <div class="button-row">
-            <button class="btn primary" type="button" data-start="solo">${t("buttons.solo")}</button>
-            <button class="btn pink" type="button" data-start="duo">${t("buttons.duo")}</button>
-            <button class="btn" type="button" data-action="daily">${t("buttons.daily")}</button>
-            <button class="btn ghost" type="button" data-action="history">${t("buttons.history")}</button>
-          </div>
-          <div class="viral-actions" aria-label="${currentLang === "th" ? "แชร์เว็บ" : "Share site"}">
-            <button class="btn compact" type="button" data-share-site>${t("buttons.shareSite")}</button>
-            <button class="btn compact ghost" type="button" data-copy-site-link>${t("buttons.copySiteLink")}</button>
-            <button class="btn compact pink" type="button" data-random-friend-case>${t("buttons.randomFriendCase")}</button>
-          </div>
-        </div>
-        <div class="hero-docket" aria-hidden="true">
-          <div class="docket-card">
-            <span class="docket-label">CASE NO. 555</span>
-            <strong>${t("landing.docketTitle")}</strong>
-            <span class="docket-stamp">${t("landing.docketStamp")}</span>
-          </div>
-          <div class="floating-sticker sticker-a">⚖️</div>
-          <div class="floating-sticker sticker-b">🧃</div>
-          <div class="floating-sticker sticker-c">💬</div>
-        </div>
-      </div>
-      <section class="section court-panel hook-panel" aria-labelledby="hook-title">
-        <div>
-          <p class="eyebrow">${t("landing.eyebrow")}</p>
-          <h2 id="hook-title">${t("landing.hookTitle")}</h2>
-          <p>${t("landing.hookCopy")}</p>
-        </div>
-        <div class="hook-actions">
-          <button class="btn primary" type="button" data-start="duo">${t("buttons.sueFriendNow")}</button>
-          <button class="btn pink" type="button" data-random-friend-case>${t("buttons.randomCase")}</button>
-          <button class="btn ghost" type="button" data-copy-site-link>${t("buttons.copyLink")}</button>
-        </div>
-      </section>
-      <section class="section" aria-labelledby="preview-title">
-        <div class="section-head">
-          <div>
-            <h2 id="preview-title">${t("landing.recommendedTitle")}</h2>
-            <p>${t("landing.recommendedSubtitle")}</p>
-          </div>
-        </div>
-        <div class="preview-grid">
-          ${getRecommendedCases().map((item, index) => `
-            <article class="mini-card tone-${index % 4}">
-              <span class="icon">${item.icon}</span>
-              <strong>${getCaseTitle(item)}</strong>
-              <p>${getCaseLevel(item)}</p>
-            </article>
-          `).join("")}
-        </div>
-      </section>
+    <section class="signup-screen" aria-labelledby="hero-title">
+      <form class="signup-card" data-party-form>
+        <p class="eyebrow">${t("signup.eyebrow")}</p>
+        <h1 id="hero-title">${t("signup.title")}</h1>
+        <label class="field-label" for="plaintiffName">${t("signup.plaintiffLabel")}</label>
+        <input
+          id="plaintiffName"
+          class="party-input"
+          name="plaintiffName"
+          type="text"
+          value="${plaintiffValue}"
+          placeholder="${t("signup.plaintiffPlaceholder")}"
+          autocomplete="name"
+          required
+        />
+        <label class="field-label" for="defendantName">${t("signup.defendantLabel")}</label>
+        <input
+          id="defendantName"
+          class="party-input"
+          name="defendantName"
+          type="text"
+          value="${defendantValue}"
+          placeholder="${t("signup.defendantPlaceholder")}"
+          autocomplete="name"
+          required
+        />
+        <button class="btn primary big-action" type="submit">${t("signup.start")}</button>
+      </form>
     </section>
   `);
-  app.querySelectorAll("[data-start]").forEach((button) => {
-    button.addEventListener("click", () => {
-      state.mode = button.dataset.start === "duo" ? "duo-menu" : "solo";
-      trackEvent(button.dataset.start === "duo" ? "start_duo" : "start_solo");
-      location.hash = button.dataset.start === "duo" ? "#modes" : "#cases";
-    });
-  });
-  app.querySelectorAll("[data-share-site]").forEach((button) => {
-    button.addEventListener("click", shareSite);
-  });
-  app.querySelectorAll("[data-copy-site-link]").forEach((button) => {
-    button.addEventListener("click", () => copyText(SITE_URL));
-  });
-  app.querySelectorAll("[data-random-friend-case]").forEach((button) => {
-    button.addEventListener("click", () => startRandomFriendCase());
+  const form = app.querySelector("[data-party-form]");
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const plaintiffName = form.elements.plaintiffName.value.trim();
+    const defendantName = form.elements.defendantName.value.trim();
+    if (!plaintiffName || !defendantName) {
+      showToast(t("signup.required"));
+      return;
+    }
+    state.plaintiffName = plaintiffName;
+    state.defendantName = defendantName;
+    persistParties();
+    resetInterrogation();
+    state.mode = "solo";
+    trackEvent("start_solo");
+    location.hash = "#cases";
   });
 }
 
@@ -3078,32 +3286,170 @@ function renderModes() {
 }
 
 function renderCases() {
-  const intro = state.mode === "duo-link-b" ? t("cases.linkIntro") : t("cases.intro");
+  if (!hasParties()) {
+    showToast(t("signup.required"));
+    location.hash = "#home";
+    return;
+  }
   renderShell(`
-    <section class="section">
-      <div class="section-head">
+    <section class="case-flow">
+      <div class="case-flow-head">
         <div>
           <p class="eyebrow">${t("cases.eyebrow")}</p>
-          <h2>${t("cases.title")}</h2>
-          <p>${intro}</p>
+          <h1>${t("cases.title")}</h1>
+          <p>${t("cases.intro")}</p>
+        </div>
+        <div class="party-summary" aria-label="${currentLang === "th" ? "คู่กรณี" : "Parties"}">
+          <span>${t("caseFlow.plaintiff")}: <strong>${escapeHtml(state.plaintiffName)}</strong></span>
+          <span>${t("caseFlow.defendant")}: <strong>${escapeHtml(state.defendantName)}</strong></span>
         </div>
       </div>
-      <div class="case-grid">
+      <div class="case-grid full-case-list">
         ${cases.map((item, index) => `
           <button class="case-card tone-${index % 5}" type="button" data-case="${item.id}">
             <span class="case-no">${t("cases.caseNo")} ${String(index + 1).padStart(3, "0")}</span>
             <span class="icon">${item.icon}</span>
             <strong>${getCaseTitle(item)}</strong>
             <p>${getCaseDesc(item)}</p>
-            <span class="level">${getCaseLevel(item)}</span>
+            <p class="level">${getCaseLevel(item)}</p>
           </button>
         `).join("")}
       </div>
     </section>
   `);
   app.querySelectorAll("[data-case]").forEach((button) => {
-    button.addEventListener("click", () => startCase(button.dataset.case));
+    button.addEventListener("click", () => {
+      startCase(button.dataset.case);
+    });
   });
+}
+
+function renderInterrogation(step) {
+  if (step.ready) {
+    const accusation = getSelectedAccusation();
+    return `
+      <div class="selected-case">
+        <span>${t("caseFlow.selected")}</span>
+        <strong>${accusation.icon} ${getLocalized(accusation.label)}</strong>
+      </div>
+      <div class="court-question-card">
+        <span>${t("caseFlow.step", { current: 4, total: 4 })}</span>
+        <h2>${t("caseFlow.readyTitle")}</h2>
+        <p>${t("caseFlow.readyCopy")}</p>
+        <div class="case-actions">
+          <button class="btn ghost" type="button" data-reset-interrogation>${t("caseFlow.changeAnswer")}</button>
+          <button class="btn primary big-action" type="button" data-judge-case>${t("buttons.judgeCase")}</button>
+        </div>
+      </div>
+    `;
+  }
+  return `
+    <div class="court-question-card">
+      <span>${t("caseFlow.step", { current: step.number, total: 4 })}</span>
+      <h2>${step.question}</h2>
+    </div>
+    <div class="case-grid interrogation-grid">
+      ${step.options.map((option, index) => `
+        <button class="case-card tone-${index % 5}" type="button" data-interrogation-choice data-field="${step.field}" data-value="${option.id}">
+          <span class="icon">${option.icon}</span>
+          <strong>${getLocalized(option.label)}</strong>
+          ${option.note ? `<p>${getLocalized(option.note)}</p>` : ""}
+        </button>
+      `).join("")}
+    </div>
+    <div class="case-actions">
+      <button class="btn pink" type="button" data-random-case>${t("caseFlow.randomCourt")}</button>
+    </div>
+  `;
+}
+
+function getInterrogationStep() {
+  if (!state.accusationCategory) {
+    return {
+      number: 1,
+      field: "accusationCategory",
+      question: t("caseFlow.categoryQuestion"),
+      options: ACCUSATION_CATEGORIES.map((category) => ({
+        id: category.id,
+        icon: category.icon,
+        label: category.label
+      }))
+    };
+  }
+  if (!state.accusationId) {
+    const category = getAccusationCategory();
+    return {
+      number: 2,
+      field: "accusationId",
+      question: t("caseFlow.accusationQuestion"),
+      options: category.accusations.map(([id, th, en]) => ({
+        id,
+        icon: category.icon,
+        label: localText(th, en)
+      }))
+    };
+  }
+  if (!state.evidenceId) {
+    return {
+      number: 3,
+      field: "evidenceId",
+      question: t("caseFlow.evidenceQuestion"),
+      options: EVIDENCE_OPTIONS
+    };
+  }
+  if (!state.remorseId) {
+    return {
+      number: 4,
+      field: "remorseId",
+      question: t("caseFlow.remorseQuestion"),
+      options: REMORSE_OPTIONS
+    };
+  }
+  return { ready: true };
+}
+
+function applyInterrogationChoice(field, value) {
+  if (field === "accusationCategory") {
+    state.accusationCategory = value;
+    state.accusationId = "";
+    state.evidenceId = "";
+    state.remorseId = "";
+    state.selectedCaseId = "";
+    return;
+  }
+  if (field === "accusationId") {
+    state.accusationId = value;
+    state.selectedCaseId = value;
+    state.evidenceId = "";
+    state.remorseId = "";
+    return;
+  }
+  if (field === "evidenceId") {
+    state.evidenceId = value;
+    state.remorseId = "";
+    return;
+  }
+  if (field === "remorseId") state.remorseId = value;
+}
+
+function randomizeInterrogation() {
+  const category = ACCUSATION_CATEGORIES[Math.floor(Math.random() * ACCUSATION_CATEGORIES.length)];
+  const accusation = category.accusations[Math.floor(Math.random() * category.accusations.length)];
+  const evidence = EVIDENCE_OPTIONS[Math.floor(Math.random() * EVIDENCE_OPTIONS.length)];
+  const remorse = REMORSE_OPTIONS[Math.floor(Math.random() * REMORSE_OPTIONS.length)];
+  state.accusationCategory = category.id;
+  state.accusationId = accusation[0];
+  state.selectedCaseId = accusation[0];
+  state.evidenceId = evidence.id;
+  state.remorseId = remorse.id;
+}
+
+function resetInterrogation() {
+  state.accusationCategory = "";
+  state.accusationId = "";
+  state.evidenceId = "";
+  state.remorseId = "";
+  state.selectedCaseId = "";
 }
 
 function renderLinkInvite() {
@@ -3133,25 +3479,90 @@ function startCase(caseId) {
   state.playerB = null;
   state.latestVerdict = null;
   state.activePlayer = "A";
+  if (state.mode === "instant") state.mode = "solo";
   location.hash = "#question";
 }
 
 function startRandomFriendCase() {
   const item = cases[Math.floor(Math.random() * cases.length)] || cases[0];
-  state.mode = "duo-link-a";
-  trackEvent("start_duo", { mode: "random_friend_case", case_id: item.id });
-  startCase(item.id);
+  state.selectedCaseId = item.id;
+  state.answers = [];
+  state.latestVerdict = null;
+  state.mode = "solo";
+  trackEvent("start_solo", { mode: "random_friend_case", case_id: state.selectedCaseId });
+  location.hash = "#question";
 }
 
 function startFriendCaseFromVerdict(verdict) {
   const caseId = verdict.caseId || verdict.player?.caseId || verdict.playerA?.caseId || cases[0].id;
-  state.mode = "duo-link-a";
-  trackEvent("start_duo", { mode: "verdict_case", case_id: caseId });
-  startCase(caseId);
+  state.selectedCaseId = caseId;
+  state.latestVerdict = null;
+  state.answers = [];
+  state.mode = "solo";
+  trackEvent("start_solo", { mode: "verdict_case", case_id: caseId });
+  location.hash = "#question";
 }
 
 function getRecommendedCases() {
   return RECOMMENDED_CASE_IDS.map((id) => getCase(id)).filter(Boolean);
+}
+
+function getAccusationCategory() {
+  return ACCUSATION_CATEGORIES.find((category) => category.id === state.accusationCategory) || ACCUSATION_CATEGORIES[0];
+}
+
+function getSelectedAccusation() {
+  const category = getAccusationCategory();
+  const source = category.accusations.find(([id]) => id === state.accusationId) || category.accusations[0];
+  return {
+    id: source[0],
+    icon: category.icon,
+    category,
+    label: localText(source[1], source[2])
+  };
+}
+
+function getSelectedEvidence() {
+  return EVIDENCE_OPTIONS.find((option) => option.id === state.evidenceId) || EVIDENCE_OPTIONS[0];
+}
+
+function getSelectedRemorse() {
+  return REMORSE_OPTIONS.find((option) => option.id === state.remorseId) || REMORSE_OPTIONS[0];
+}
+
+function getSelectedCaseForVerdict() {
+  const accusation = getSelectedAccusation();
+  const existing = getCase(accusation.id);
+  if (existing?.id === accusation.id) return existing;
+  return {
+    id: accusation.id,
+    icon: accusation.icon,
+    title: getLocalizedForLang(accusation.label, "th"),
+    desc: getLocalizedForLang(accusation.category.label, "th"),
+    level: "ศาลขำ 10/10",
+    questions: []
+  };
+}
+
+function judgeInstantCase() {
+  if (!hasParties()) {
+    showToast(t("signup.required"));
+    location.hash = "#home";
+    return;
+  }
+  if (!state.remorseId) {
+    showToast(t("caseFlow.intro"));
+    return;
+  }
+  const item = getSelectedCaseForVerdict();
+  state.latestVerdict = makeInstantVerdict(item);
+  saveVerdict(state.latestVerdict);
+  trackEvent("complete_case", {
+    case_id: item.id,
+    mode: "instant",
+    verdict_type: state.latestVerdict.type
+  });
+  location.hash = "#verdict";
 }
 
 function startDaily() {
@@ -3264,12 +3675,9 @@ function renderVerdict() {
     <section class="verdict-wrap">
       ${renderVerdictCard(verdict)}
       <aside class="verdict-actions" aria-label="${t("verdict.actionsLabel")}">
-        <button class="btn pink" type="button" data-file-this-case>${t("buttons.fileThisCase")}</button>
-        <button class="btn" type="button" data-copy-verdict>${t("buttons.copyVerdict")}</button>
-        <button class="btn" type="button" data-copy-link>${t("buttons.copyLink")}</button>
-        <button class="btn" type="button" data-save-image>${t("buttons.saveImage")}</button>
-        <button class="btn ghost" type="button" data-play-again>${t("buttons.playAgain")}</button>
-        <button class="btn ghost" type="button" data-action="home">${t("buttons.home")}</button>
+        <button class="btn pink big-action" type="button" data-copy-verdict>${t("buttons.sendToDefendant")}</button>
+        <button class="btn" type="button" data-save-image>${t("buttons.saveVerdictImage")}</button>
+        <button class="btn ghost" type="button" data-play-again>${t("buttons.restartCase")}</button>
       </aside>
     </section>
   `);
@@ -3283,6 +3691,8 @@ function renderVerdictCard(verdict) {
   const text = getLocalized(verdict.text);
   const punishment = getLocalized(verdict.punishment);
   const friendshipStatus = getLocalized(verdict.friendshipStatus);
+  const parties = getVerdictParties(verdict);
+  const reaction = getVerdictReaction(verdict);
   if (verdict.type === "duo") {
     return `
       <article id="verdictCard" class="verdict-card">
@@ -3324,21 +3734,30 @@ function renderVerdictCard(verdict) {
         </div>
         <span class="case-number">${caseNumber}</span>
       </div>
-      <div class="stamp-wrap"><div class="stamp">${verdict.type === "share" ? t("verdict.waiting") : t("verdict.order")}</div></div>
-      <p class="case-name">${caseTitle}</p>
+      <div class="stamp-wrap"><div class="stamp">${verdict.type === "share" ? t("verdict.waiting") : reaction.verdictLabel}</div></div>
+      <div class="party-grid">
+        <div><span>${t("verdictCard.plaintiff")}</span><strong>${escapeHtml(parties.plaintiff)}</strong></div>
+        <div><span>${t("verdictCard.defendant")}</span><strong>${escapeHtml(parties.defendant)}</strong></div>
+      </div>
+      <p class="case-name">${t("verdictCard.caseTitle")}: ${caseTitle}</p>
+      <div class="verdict-reaction ${reaction.className}" aria-label="${reaction.label}">
+        <span class="reaction-face" aria-hidden="true">${reaction.emoji}</span>
+        <strong>${reaction.verdictLabel}</strong>
+      </div>
+      <p class="verdict-subhead">⚖️ ${t("verdictCard.verdict")}</p>
       <h2>${title}</h2>
-      <div class="percent"><strong>${verdict.guilty}</strong><small>${t("verdict.guiltySmall")}</small></div>
+      ${verdict.type === "instant" ? "" : `<div class="percent"><strong>${verdict.guilty}</strong><small>${t("verdict.guiltySmall")}</small></div>`}
       <p class="verdict-text">${text}</p>
       <div class="paper-chip-row">
         <span class="paper-chip">${getLocalized(verdict.role)}</span>
       </div>
       <div class="verdict-section-grid">
         <section class="verdict-note">
-          <span>${t("verdict.punishment")}</span>
+          <span>${t("verdictCard.punishment")}</span>
           <strong>${punishment}</strong>
         </section>
         <section class="verdict-note">
-          <span>${t("verdict.friendshipStatus")}</span>
+          <span>Friend Court</span>
           <strong>${friendshipStatus}</strong>
         </section>
       </div>
@@ -3425,8 +3844,10 @@ function bindGlobalActions() {
 function bindVerdictActions(verdict) {
   app.querySelectorAll("[data-play-again]").forEach((button) => {
     button.addEventListener("click", () => {
-      state.mode = state.mode.startsWith("duo") ? "duo-menu" : "solo";
-      location.hash = state.mode === "duo-menu" ? "#modes" : "#cases";
+      state.latestVerdict = null;
+      state.selectedCaseId = null;
+      state.mode = "instant";
+      location.hash = "#home";
     });
   });
   app.querySelectorAll("[data-file-this-case]").forEach((button) => {
@@ -3450,18 +3871,25 @@ function getCaseQuestions(caseId) {
 }
 
 function q(text, options) {
-  return { text, options };
+  const expanded = [...options, ...buildExtraQuestionChoices(text)].slice(0, QUESTION_OPTION_COUNT);
+  return { text, options: expanded };
 }
 
 function c(text, scores, hint = "") {
   return opt(text, hint, scores);
 }
 
+function cx(th, en, scores, hint = "") {
+  return opt(localText(th, en), hint, scores);
+}
+
 function cloneQuestion(question, englishQuestion) {
   return {
     text: localText(question.text, englishQuestion?.[0] || question.text),
     options: question.options.map((option, optionIndex) => ({
-      text: localText(option.text, englishQuestion?.[1]?.[optionIndex] || option.text),
+      text: typeof option.text === "object" && option.text
+        ? option.text
+        : localText(option.text, englishQuestion?.[1]?.[optionIndex] || option.text),
       hint: option.hint ? localText(option.hint, "") : "",
       scores: completeScores(option.scores)
     }))
@@ -3533,11 +3961,71 @@ function makeSoloVerdict(item, scores, isDaily) {
     friendshipStatus: player.guilty > 72
       ? localText(translations.th.verdict.soloStatusHigh, translations.en.verdict.soloStatusHigh)
       : localText(translations.th.verdict.soloStatusLow, translations.en.verdict.soloStatusLow),
+    plaintiffName: state.plaintiffName,
+    defendantName: state.defendantName,
+    outcome: player.guilty >= 58 ? "defendant_loses" : "defendant_wins",
     shareText: ""
   };
   verdict.shareText = buildShareText(verdict);
   if (isDaily) updateDailyStreak();
   return verdict;
+}
+
+function makeInstantVerdict(item) {
+  const evidence = getSelectedEvidence();
+  const remorse = getSelectedRemorse();
+  const accusation = getSelectedAccusation();
+  const seed = `${item.id}|${state.plaintiffName}|${state.defendantName}|${state.evidenceId}|${state.remorseId}`;
+  const score = hashScore(seed);
+  const template = resultTemplates[score % resultTemplates.length];
+  const punishment = buildInstantPunishment(item, evidence, remorse, score);
+  const verdictTitle = resultField(template, "title");
+  const guilty = clamp(38 + (score % 34) + evidence.weight + remorse.weight, 18, 97);
+  const defendantLoses = guilty >= 58;
+  const text = localText(
+    buildInstantJudgmentText("th", defendantLoses, item, evidence, remorse),
+    buildInstantJudgmentText("en", defendantLoses, item, evidence, remorse)
+  );
+  const verdict = {
+    type: "instant",
+    caseId: item.id,
+    resultKey: template.title,
+    caseTitle: localText(getLocalizedForLang(accusation.label, "th"), getLocalizedForLang(accusation.label, "en")),
+    title: verdictTitle,
+    guilty,
+    outcome: defendantLoses ? "defendant_loses" : "defendant_wins",
+    role: resultField(template, "role"),
+    text,
+    punishment,
+    friendshipStatus: localText(translations.th.verdictCard.cta, translations.en.verdictCard.cta),
+    plaintiffName: state.plaintiffName,
+    defendantName: state.defendantName,
+    shareText: ""
+  };
+  verdict.shareText = buildViralVerdictText(verdict);
+  return verdict;
+}
+
+function buildInstantJudgmentText(lang, defendantLoses, item, evidence, remorse) {
+  const defendant = state.defendantName;
+  const caseTitle = getLocalizedForLang(localText(item.title, caseTranslations[item.id]?.title || item.title), lang);
+  const evidenceText = getLocalizedForLang(evidence.label, lang);
+  const remorseText = getLocalizedForLang(remorse.label, lang);
+  if (lang === "en") {
+    return defendantLoses
+      ? `The court finds ${defendant} suspicious in “${caseTitle}”. Evidence says: ${evidenceText}. Defendant mood: ${remorseText}. Guilty, but make it friendship-safe.`
+      : `The court cannot fully catch ${defendant} in “${caseTitle}”. Evidence says: ${evidenceText}. Defendant mood: ${remorseText}. Cleared for now, watched forever.`;
+  }
+  return defendantLoses
+    ? `ศาลเห็นว่า ${defendant} มีพิรุธใน “${caseTitle}” หลักฐานคือ ${evidenceText} ส่วนท่าทีจำเลยคือ ${remorseText} จึงมีความผิดแบบเพื่อนยังคบต่อได้`
+    : `ศาลยังจับ ${defendant} ไม่อยู่ใน “${caseTitle}” แม้หลักฐานจะบอกว่า ${evidenceText} และจำเลยมีท่าที ${remorseText} จึงให้พ้นผิดชั่วคราว แต่แชตกลุ่มจะจับตาดู`;
+}
+
+function buildInstantPunishment(item, evidence, remorse, score) {
+  const base = pickPunishment(score + evidence.weight + remorse.weight);
+  const th = `${getLocalizedForLang(base, "th")} และต้องประกาศในแชตว่า “ศาลรับทราบแล้ว”`;
+  const en = `${getLocalizedForLang(base, "en")} Also announce: “Court has noted this.”`;
+  return localText(th, en);
 }
 
 function makeShareVerdict(player, item) {
@@ -3676,6 +4164,9 @@ function getShareUrl(verdict) {
 }
 
 function buildViralVerdictText(verdict) {
+  if (verdict.type === "instant") {
+    return t("share.defendantVerdict", { url: SITE_URL });
+  }
   return t("share.verdict", {
     verdictTitle: getLocalized(verdict.title),
     caseTitle: getLocalized(verdict.caseTitle),
@@ -3717,7 +4208,7 @@ async function shareVerdict(verdict) {
       // A cancelled native share should still leave the user with a useful fallback.
     }
   }
-  copyText(text);
+  copyText(text, t("toast.shareCopied"));
 }
 
 async function shareText(verdict) {
@@ -3733,14 +4224,14 @@ async function shareText(verdict) {
   copyText(text);
 }
 
-async function copyText(text) {
+async function copyText(text, successMessage = t("toast.copied")) {
   try {
     if (!navigator.clipboard?.writeText) throw new Error("Clipboard API unavailable");
     await navigator.clipboard.writeText(text);
-    showToast(t("toast.copied"));
+    showToast(successMessage);
   } catch (error) {
     if (legacyCopyText(text)) {
-      showToast(t("toast.copied"));
+      showToast(successMessage);
       return;
     }
     showToast(t("toast.copyFailed"));
@@ -3775,22 +4266,24 @@ function exportVerdictImage(verdict) {
     const title = getLocalized(verdict.title);
     const punishment = getLocalized(verdict.punishment);
     const friendshipStatus = getLocalized(verdict.friendshipStatus);
+    const parties = getVerdictParties(verdict);
+    const reaction = getVerdictReaction(verdict);
     canvas.width = 1080;
     canvas.height = 1350;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-    gradient.addColorStop(0, "#07111F");
-    gradient.addColorStop(0.5, "#0B1220");
-    gradient.addColorStop(1, "#111827");
+    gradient.addColorStop(0, "#06142E");
+    gradient.addColorStop(0.52, "#0A1E46");
+    gradient.addColorStop(1, "#020817");
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    drawShareBlob(ctx, 72, 78, 300, "#38BDF8", 0.18);
-    drawShareBlob(ctx, 775, 70, 260, "#818CF8", 0.16);
-    drawShareBlob(ctx, 760, 1040, 320, "#38BDF8", 0.12);
-    roundRect(ctx, 70, 82, 940, 1186, 56, "#FFFDF7");
-    ctx.strokeStyle = "rgba(251, 191, 36, 0.45)";
+    drawShareBlob(ctx, 72, 78, 300, "#F8D36B", 0.18);
+    drawShareBlob(ctx, 775, 70, 260, "#1D4ED8", 0.2);
+    drawShareBlob(ctx, 760, 1040, 320, "#F59E0B", 0.12);
+    roundRect(ctx, 70, 82, 940, 1186, 56, "#FFF9E8");
+    ctx.strokeStyle = "rgba(184, 134, 11, 0.55)";
     ctx.lineWidth = 4;
     roundRectStroke(ctx, 98, 112, 884, 1126, 38);
 
@@ -3799,8 +4292,8 @@ function exportVerdictImage(verdict) {
     ctx.fillStyle = "#0F172A";
     drawWrappedText(ctx, t("verdict.header"), 130, 226, 640, 54, canvasFont(900, 48), 1);
 
-    roundRect(ctx, 742, 142, 210, 54, 27, "#EAF4FF");
-    ctx.fillStyle = "#0369A1";
+    roundRect(ctx, 742, 142, 210, 54, 27, "#F8E7B0");
+    ctx.fillStyle = "#12306B";
     drawWrappedText(ctx, caseNumber, 774, 178, 160, 28, canvasFont(900, 25), 1);
 
     ctx.strokeStyle = "rgba(15, 23, 42, 0.14)";
@@ -3819,17 +4312,33 @@ function exportVerdictImage(verdict) {
     roundRectStroke(ctx, 0, 0, 230, 112, 18);
     ctx.fillStyle = "#B45309";
     ctx.font = canvasFont(900, 36);
-    ctx.fillText(verdict.type === "share" ? t("verdict.waiting") : t("verdict.judged"), 26, 68);
+    ctx.fillText(verdict.type === "share" ? t("verdict.waiting") : reaction.verdictLabel, 26, 68);
     ctx.restore();
 
     roundRect(ctx, 130, 334, 810, 58, 29, "rgba(255, 255, 255, 0.62)");
     ctx.fillStyle = "#334155";
     drawWrappedText(ctx, caseTitle, 154, 373, 760, 38, canvasFont(800, 31), 1);
+    drawInfoBox(ctx, 130, 420, 390, 106, t("verdictCard.plaintiff"), parties.plaintiff);
+    drawInfoBox(ctx, 550, 420, 390, 106, t("verdictCard.defendant"), parties.defendant);
+    ctx.save();
+    ctx.translate(760, 610);
+    ctx.rotate(reaction.className === "is-happy" ? 0.08 : -0.08);
+    roundRect(ctx, -105, -105, 210, 210, 46, reaction.className === "is-happy" ? "#E8F8C8" : "#FFE0C8");
+    ctx.font = canvasFont(900, 112);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
     ctx.fillStyle = "#0F172A";
-    const titleEnd = drawWrappedText(ctx, title, 130, 490, 810, 66, canvasFont(900, 58), 3);
+    ctx.fillText(reaction.emoji, 0, -6);
+    ctx.restore();
 
-    const scoreTop = Math.max(665, titleEnd + 24);
-    if (verdict.type === "duo") {
+    ctx.fillStyle = "#0F172A";
+    drawWrappedText(ctx, `⚖️ ${t("verdictCard.verdict")}`, 130, 582, 500, 32, canvasFont(900, 28), 1);
+    const titleEnd = drawWrappedText(ctx, title, 130, 610, 500, 64, canvasFont(900, 54), 3);
+
+    const scoreTop = Math.max(815, titleEnd + 24);
+    if (verdict.type === "instant") {
+      drawWrappedText(ctx, getLocalized(verdict.text), 130, scoreTop, 810, 40, canvasFont(700, 30), 3);
+    } else if (verdict.type === "duo") {
       drawMetricPill(ctx, 130, scoreTop, 250, `${verdict.playerA.guilty}%`, getLocalized(verdict.playerA.name));
       drawMetricPill(ctx, 415, scoreTop, 250, `${verdict.playerB.guilty}%`, getLocalized(verdict.playerB.name));
       drawMetricPill(ctx, 700, scoreTop, 240, `${verdict.compatibility}%`, t("verdict.compatibility"));
@@ -3837,27 +4346,45 @@ function exportVerdictImage(verdict) {
       drawGuiltyBadge(ctx, 130, scoreTop, verdict.guilty);
     }
 
-    const punishmentY = verdict.type === "duo" ? scoreTop + 238 : scoreTop + 230;
-    drawInfoBox(ctx, 130, punishmentY, 810, 130, t("verdict.punishment"), punishment);
-    drawInfoBox(ctx, 130, punishmentY + 158, 810, 120, t("verdict.friendshipStatus"), friendshipStatus);
+    const punishmentY = verdict.type === "duo" ? scoreTop + 238 : verdict.type === "instant" ? scoreTop + 150 : scoreTop + 230;
+    drawInfoBox(ctx, 130, punishmentY, 810, 130, t("verdictCard.punishment"), punishment);
+    drawInfoBox(ctx, 130, punishmentY + 158, 810, 120, "Friend Court", friendshipStatus);
 
     ctx.fillStyle = "#64748B";
     drawWrappedText(ctx, t("export.footer"), 130, 1198, 720, 36, canvasFont(900, 30), 1);
     ctx.fillStyle = "#64748B";
     drawWrappedText(ctx, t("export.disclaimer"), 130, 1240, 720, 30, canvasFont(700, 24), 1);
 
-    const link = document.createElement("a");
-    link.download = `friend-court-${Date.now()}.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
+    const openedFallback = saveCanvasPng(canvas);
     trackEvent("save_result_image", {
       case_id: verdict.caseId || verdict.player?.caseId || verdict.playerA?.caseId || "",
       verdict_type: verdict.type
     });
-    showToast(t("toast.imageSaved"));
+    if (!openedFallback) showToast(t("toast.imageSaved"));
   } catch (error) {
     copyExportFallback(verdict);
   }
+}
+
+function saveCanvasPng(canvas) {
+  const dataUrl = canvas.toDataURL("image/png");
+  const link = document.createElement("a");
+  link.download = "friend-court-verdict.png";
+  link.href = dataUrl;
+  if (typeof link.download === "string") {
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    return false;
+  }
+  const imageWindow = window.open();
+  if (imageWindow) {
+    imageWindow.document.write(`<img src="${dataUrl}" alt="Friend Court verdict" style="max-width:100%;height:auto;" />`);
+    showToast(t("toast.imageOpened"));
+    return true;
+  }
+  window.location.href = dataUrl;
+  return true;
 }
 
 function copyExportFallback(verdict) {
@@ -4024,6 +4551,8 @@ function saveVerdict(verdict) {
       relationship: verdict.relationship || null,
       caseTitle: getLocalized(verdict.caseTitle, "th"),
       title: getLocalized(verdict.title, "th"),
+      plaintiffName: verdict.plaintiffName || null,
+      defendantName: verdict.defendantName || null,
       guilty: verdict.guilty || null,
       compatibility: verdict.compatibility || null
     },
@@ -4103,6 +4632,74 @@ function writeStore(next) {
   } catch (error) {
     showToast(t("toast.storageFailed"));
   }
+}
+
+function loadSavedParties() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(PARTY_STORAGE_KEY)) || {};
+    state.plaintiffName = typeof saved.plaintiffName === "string" ? saved.plaintiffName : "";
+    state.defendantName = typeof saved.defendantName === "string" ? saved.defendantName : "";
+  } catch (error) {
+    state.plaintiffName = "";
+    state.defendantName = "";
+  }
+}
+
+function persistParties() {
+  try {
+    localStorage.setItem(PARTY_STORAGE_KEY, JSON.stringify({
+      plaintiffName: state.plaintiffName,
+      defendantName: state.defendantName
+    }));
+  } catch (error) {
+    // Names are still kept for the current session when storage is unavailable.
+  }
+}
+
+function hasParties() {
+  return Boolean(state.plaintiffName.trim() && state.defendantName.trim());
+}
+
+function getVerdictParties(verdict) {
+  return {
+    plaintiff: verdict.plaintiffName || state.plaintiffName || getLocalized(verdict.playerA?.name) || t("players.us"),
+    defendant: verdict.defendantName || state.defendantName || getLocalized(verdict.playerB?.name) || t("players.friend")
+  };
+}
+
+function getVerdictReaction(verdict) {
+  const defendantWins = verdict.outcome === "defendant_wins" || (!verdict.outcome && Number(verdict.guilty || 0) < 58);
+  if (defendantWins) {
+    return {
+      emoji: "😎",
+      label: t("verdictCard.happyReaction"),
+      verdictLabel: t("verdictCard.acquitted"),
+      className: "is-happy"
+    };
+  }
+  return {
+    emoji: "😭",
+    label: t("verdictCard.sadReaction"),
+    verdictLabel: t("verdictCard.guilty"),
+    className: "is-sad"
+  };
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function hashScore(value) {
+  let hash = 0;
+  for (let i = 0; i < value.length; i += 1) {
+    hash = ((hash << 5) - hash + value.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash);
 }
 
 function encodePayload(payload) {
