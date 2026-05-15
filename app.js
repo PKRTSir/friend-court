@@ -119,7 +119,7 @@ const translations = {
       modeTitle: "เลือกโหมดขึ้นศาล",
       modeCopy: "จะให้ศาลตัดสินคนเดียว หรือส่งฟ้องเพื่อนสนิทดี",
       soloMode: "เล่นคนเดียว",
-      soloModeDesc: "เข้าศาลไว ใช้ชื่อเริ่มต้น แล้วเลือกคดีได้ทันที",
+      soloModeDesc: "ลงชื่อก่อนขึ้นศาล แล้วเลือกคดีให้ศาลตัดสิน",
       friendMode: "เล่นกับเพื่อน",
       friendModeDesc: "กรอกชื่อผู้ฟ้องกับจำเลย แล้วให้ศาลตัดสินคดีเพื่อน",
       methodTitle: "เลือกวิธีเล่นกับเพื่อน",
@@ -327,7 +327,7 @@ const translations = {
       modeTitle: "Choose Court Mode",
       modeCopy: "Let the court judge you solo, or file a case against a friend.",
       soloMode: "Play Solo",
-      soloModeDesc: "Enter court fast with default names, then choose a case.",
+      soloModeDesc: "Sign the complaint first, then choose a case.",
       friendMode: "Play with Friend",
       friendModeDesc: "Enter plaintiff and defendant names before court begins.",
       methodTitle: "Choose Friend Play Method",
@@ -3313,12 +3313,8 @@ function renderHome() {
         if (button.dataset.startMode === "solo") {
           state.playMode = "solo";
           state.mode = "solo";
-          state.plaintiffName = state.plaintiffName.trim() || (currentLang === "th" ? "ผู้ฟ้อง" : "Plaintiff");
-          state.defendantName = state.defendantName.trim() || (currentLang === "th" ? "จำเลย" : "Defendant");
-          persistParties();
           resetInterrogation();
-          trackEvent("start_solo", { mode: "solo" });
-          location.hash = "#cases";
+          renderHome();
           return;
         }
         state.playMode = "friend";
