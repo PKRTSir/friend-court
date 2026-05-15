@@ -116,6 +116,19 @@ const translations = {
     signup: {
       eyebrow: "⚖️ เปิดศาลเพื่อน",
       title: "ลงนามการฟ้องร้อง",
+      modeTitle: "เลือกโหมดขึ้นศาล",
+      modeCopy: "จะให้ศาลตัดสินคนเดียว หรือส่งฟ้องเพื่อนสนิทดี",
+      soloMode: "เล่นคนเดียว",
+      soloModeDesc: "เข้าศาลไว ใช้ชื่อเริ่มต้น แล้วเลือกคดีได้ทันที",
+      friendMode: "เล่นกับเพื่อน",
+      friendModeDesc: "กรอกชื่อผู้ฟ้องกับจำเลย แล้วให้ศาลตัดสินคดีเพื่อน",
+      methodTitle: "เลือกวิธีเล่นกับเพื่อน",
+      methodCopy: "อยู่ด้วยกันก็เล่นเครื่องเดียว หรือส่งหมายเรียกให้เพื่อนเปิดจากเครื่องเขา",
+      sameDevice: "เล่นเครื่องเดียวกัน",
+      sameDeviceDesc: "อยู่ด้วยกันก็เปิดศาลได้เลย ผลตัดสินออกในเครื่องนี้",
+      shareLink: "ส่งลิงก์ให้เพื่อน",
+      shareLinkDesc: "สร้างคดีแล้วส่งให้เพื่อนเปิดเล่นต่อจากเครื่องเขา",
+      changeMode: "เปลี่ยนโหมด",
       plaintiffLabel: "ชื่อผู้ฟ้อง",
       plaintiffPlaceholder: "เช่น มีนา",
       defendantLabel: "ชื่อจำเลย",
@@ -137,6 +150,8 @@ const translations = {
       copyVerdict: "คัดลอกคำพิพากษา",
       judgeCase: "⚖️ ตัดสินคดี",
       sendToDefendant: "📨 แชร์คำพิพากษา",
+      sendFriendContinue: "📨 ส่งให้เพื่อนเล่นต่อ",
+      sendDefendantLink: "📨 ส่งลิงก์ให้จำเลย",
       saveVerdictImage: "📸 บันทึกคำพิพากษา",
       restartCase: "🔁 ฟ้องคดีใหม่",
       duoSame: "เล่น 2 คนในเครื่องเดียว",
@@ -276,6 +291,7 @@ const translations = {
       imagePopupBlocked: "กรุณาอนุญาต popup แล้วลองใหม่ หรือกดค้างที่รูปเพื่อบันทึก",
       imageBuildFailed: "ไม่สามารถสร้างรูปภาพได้ กรุณาลองใหม่",
       shareCancelled: "ยกเลิกการแชร์แล้ว",
+      friendInviteCopied: "คัดลอกคำชวนเล่นต่อแล้ว ส่งให้เพื่อนได้เลย",
       imageFailedCopied: "บันทึกรูปไม่สำเร็จ เลยคัดลอกข้อความแชร์ให้แทน",
       imageFailed: "บันทึกรูปไม่สำเร็จ ลองใช้ปุ่มแชร์ข้อความแทน",
       storageFailed: "พื้นที่บันทึกเต็มหรือถูกปิดไว้"
@@ -308,6 +324,19 @@ const translations = {
     signup: {
       eyebrow: "⚖️ Open Friend Court",
       title: "Sign the Complaint",
+      modeTitle: "Choose Court Mode",
+      modeCopy: "Let the court judge you solo, or file a case against a friend.",
+      soloMode: "Play Solo",
+      soloModeDesc: "Enter court fast with default names, then choose a case.",
+      friendMode: "Play with Friend",
+      friendModeDesc: "Enter plaintiff and defendant names before court begins.",
+      methodTitle: "Choose Friend Play Method",
+      methodCopy: "Play together on one device, or send a summons link to your friend.",
+      sameDevice: "Same Device",
+      sameDeviceDesc: "Open court together and get the verdict on this device.",
+      shareLink: "Send Link",
+      shareLinkDesc: "Create a case and send it for your friend to open.",
+      changeMode: "Change Mode",
       plaintiffLabel: "Plaintiff name",
       plaintiffPlaceholder: "e.g. Mina",
       defendantLabel: "Defendant name",
@@ -329,6 +358,8 @@ const translations = {
       copyVerdict: "Copy Verdict",
       judgeCase: "⚖️ Judge Case",
       sendToDefendant: "📨 Share Verdict",
+      sendFriendContinue: "📨 Send to Friend",
+      sendDefendantLink: "📨 Send Link to Defendant",
       saveVerdictImage: "📸 Save Verdict",
       restartCase: "🔁 New Case",
       duoSame: "Same Phone Trial",
@@ -468,6 +499,7 @@ const translations = {
       imagePopupBlocked: "Please allow popups and try again, or touch and hold the image to save.",
       imageBuildFailed: "Could not create image. Please try again.",
       shareCancelled: "Share cancelled",
+      friendInviteCopied: "Friend invite copied",
       imageFailedCopied: "PNG failed, so the share text got copied instead.",
       imageFailed: "PNG failed. Share the text receipt instead.",
       storageFailed: "Storage is full or disabled"
@@ -2997,6 +3029,8 @@ const friendshipTitleTranslations = [
 const state = {
   view: "home",
   mode: "solo",
+  playMode: null,
+  friendPlayMethod: null,
   plaintiffName: "",
   defendantName: "",
   caseFilter: "all",
@@ -3009,6 +3043,7 @@ const state = {
   playerA: null,
   playerB: null,
   activePlayer: "A",
+  firstResponder: null,
   latestVerdict: null,
   sharePayload: null,
   dailyCaseId: null
@@ -3025,10 +3060,25 @@ function init() {
   applyDocumentLanguage();
   const payload = readShareParam();
   if (payload) {
-    state.sharePayload = payload;
-    state.mode = "duo-link-b";
-    state.selectedCaseId = payload.caseId;
-    location.hash = "#case-link";
+    if (payload.kind === "friend_share_link") {
+      state.sharePayload = payload;
+      state.playMode = "friend";
+      state.friendPlayMethod = "share_link";
+      state.mode = payload.player ? "friend-share-respond" : "solo";
+      state.plaintiffName = payload.plaintiffName || "";
+      state.defendantName = payload.defendantName || "";
+      state.selectedCaseId = payload.caseId;
+      state.firstResponder = payload.firstRole || null;
+      state.activePlayer = payload.nextRole || getOppositeRole(payload.firstRole || "plaintiff");
+      if (payload.player) setFriendPlayerResult(payload.firstRole || "plaintiff", payload.player);
+      state.answers = [];
+      location.hash = "#case-link";
+    } else {
+      state.sharePayload = payload;
+      state.mode = "duo-link-b";
+      state.selectedCaseId = payload.caseId;
+      location.hash = "#case-link";
+    }
   }
   routeFromHash();
 }
@@ -3072,6 +3122,10 @@ function renderCurrentScreen() {
   }
   if (hash === "case-link" && state.sharePayload) {
     renderLinkInvite();
+    return;
+  }
+  if (hash === "first-player" && state.selectedCaseId) {
+    renderFirstResponder();
     return;
   }
   routeFromHash();
@@ -3163,6 +3217,8 @@ function routeFromHash() {
     verdict: renderVerdict,
     history: renderHistory,
     daily: startDaily,
+    "first-player": renderFirstResponder,
+    "share-case": renderShareCase,
     "case-link": renderLinkInvite
   };
   if (hash.startsWith("lang-")) {
@@ -3178,6 +3234,7 @@ function routeFromHash() {
 }
 
 function renderHashRoute(hash, routes) {
+  if (hash === "home") state.playMode = null;
   if ((hash === "question" || hash === "daily") && state.selectedCaseId && (hash === "question" || state.mode === "daily")) {
     renderQuestion();
     return;
@@ -3188,6 +3245,14 @@ function renderHashRoute(hash, routes) {
   }
   if (hash === "case-link" && state.sharePayload) {
     renderLinkInvite();
+    return;
+  }
+  if (hash === "first-player" && state.selectedCaseId) {
+    renderFirstResponder();
+    return;
+  }
+  if (hash === "share-case" && state.selectedCaseId) {
+    renderShareCase();
     return;
   }
   (routes[hash] || renderHome)();
@@ -3218,11 +3283,98 @@ function renderShell(content) {
 }
 
 function renderHome() {
+  if (!state.playMode) {
+    renderShell(`
+      <section class="signup-screen" aria-labelledby="mode-title">
+        <div class="signup-card mode-select-card">
+          <div class="summons-hero-copy">
+            <span class="summons-logo" aria-hidden="true">⚖️</span>
+            <p class="eyebrow">Friend Court</p>
+            <h1 id="mode-title">${t("signup.modeTitle")}</h1>
+            <p>${t("signup.modeCopy")}</p>
+          </div>
+          <div class="mode-choice-grid">
+            <button class="mode-choice-card" type="button" data-start-mode="solo">
+              <span aria-hidden="true">§</span>
+              <strong>${t("signup.soloMode")}</strong>
+              <small>${t("signup.soloModeDesc")}</small>
+            </button>
+            <button class="mode-choice-card is-featured" type="button" data-start-mode="friend">
+              <span aria-hidden="true">⚖️</span>
+              <strong>${t("signup.friendMode")}</strong>
+              <small>${t("signup.friendModeDesc")}</small>
+            </button>
+          </div>
+        </div>
+      </section>
+    `);
+    app.querySelectorAll("[data-start-mode]").forEach((button) => {
+      button.addEventListener("click", () => {
+        if (button.dataset.startMode === "solo") {
+          state.playMode = "solo";
+          state.mode = "solo";
+          state.plaintiffName = state.plaintiffName.trim() || (currentLang === "th" ? "ผู้ฟ้อง" : "Plaintiff");
+          state.defendantName = state.defendantName.trim() || (currentLang === "th" ? "จำเลย" : "Defendant");
+          persistParties();
+          resetInterrogation();
+          trackEvent("start_solo", { mode: "solo" });
+          location.hash = "#cases";
+          return;
+        }
+        state.playMode = "friend";
+        state.friendPlayMethod = null;
+        state.mode = "solo";
+        renderHome();
+      });
+    });
+    return;
+  }
+  if (state.playMode === "friend" && !state.friendPlayMethod) {
+    renderShell(`
+      <section class="signup-screen" aria-labelledby="friend-method-title">
+        <div class="signup-card mode-select-card">
+          <button class="btn ghost compact mode-back-button" type="button" data-change-mode>${t("signup.changeMode")}</button>
+          <div class="summons-hero-copy">
+            <span class="summons-logo" aria-hidden="true">⚖️</span>
+            <p class="eyebrow">Friend Court</p>
+            <h1 id="friend-method-title">${t("signup.methodTitle")}</h1>
+            <p>${t("signup.methodCopy")}</p>
+          </div>
+          <div class="mode-choice-grid">
+            <button class="mode-choice-card" type="button" data-friend-method="same_device">
+              <span aria-hidden="true">§</span>
+              <strong>${t("signup.sameDevice")}</strong>
+              <small>${t("signup.sameDeviceDesc")}</small>
+            </button>
+            <button class="mode-choice-card is-featured" type="button" data-friend-method="share_link">
+              <span aria-hidden="true">✉</span>
+              <strong>${t("signup.shareLink")}</strong>
+              <small>${t("signup.shareLinkDesc")}</small>
+            </button>
+          </div>
+        </div>
+      </section>
+    `);
+    app.querySelector("[data-change-mode]").addEventListener("click", () => {
+      state.playMode = null;
+      state.friendPlayMethod = null;
+      renderHome();
+    });
+    app.querySelectorAll("[data-friend-method]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.friendPlayMethod = button.dataset.friendMethod;
+        state.mode = state.friendPlayMethod === "same_device" ? "duo-same" : "solo";
+        renderHome();
+      });
+    });
+    return;
+  }
   const plaintiffValue = escapeHtml(state.plaintiffName);
   const defendantValue = escapeHtml(state.defendantName);
   renderShell(`
     <section class="signup-screen" aria-labelledby="hero-title">
       <form class="signup-card" data-party-form>
+        <button class="btn ghost compact mode-back-button" type="button" data-change-mode>${t("signup.changeMode")}</button>
         <div class="summons-hero-copy">
           <span class="summons-logo" aria-hidden="true">⚖️</span>
           <p class="eyebrow">Friend Court</p>
@@ -3287,6 +3439,17 @@ function renderHome() {
       </form>
     </section>
   `);
+  const changeMode = app.querySelector("[data-change-mode]");
+  if (changeMode) {
+    changeMode.addEventListener("click", () => {
+      if (state.playMode === "friend") {
+        state.friendPlayMethod = null;
+      } else {
+        state.playMode = null;
+      }
+      renderHome();
+    });
+  }
   const form = app.querySelector("[data-party-form]");
   ["plaintiffName", "defendantName"].forEach((name) => {
     form.elements[name].addEventListener("input", () => {
@@ -3311,8 +3474,16 @@ function renderHome() {
     state.defendantName = defendantName;
     persistParties();
     resetInterrogation();
-    state.mode = "solo";
-    trackEvent("start_solo");
+    state.answers = [];
+    state.playerA = null;
+    state.playerB = null;
+    state.latestVerdict = null;
+    state.activePlayer = "A";
+    state.mode = isFriendSameDeviceFlow() ? "duo-same" : "solo";
+    trackEvent(state.mode === "duo-same" ? "start_duo" : "start_solo", {
+      mode: state.playMode || "friend",
+      friend_method: state.friendPlayMethod || ""
+    });
     location.hash = "#cases";
   });
 }
@@ -3612,22 +3783,149 @@ function resetInterrogation() {
   state.selectedCaseId = "";
 }
 
-function renderLinkInvite() {
+function renderFirstResponder() {
+  if (!hasParties()) {
+    showToast(t("signup.required"));
+    location.hash = "#home";
+    return;
+  }
+  if (!state.selectedCaseId) {
+    location.hash = "#cases";
+    return;
+  }
   const item = getCase(state.selectedCaseId);
+  const methodCopy = state.friendPlayMethod === "share_link"
+    ? (currentLang === "th" ? "ตอบฝั่งแรกให้จบก่อน แล้วศาลจะสร้างลิงก์ส่งให้อีกฝ่าย" : "Finish the first side, then court will create a link for the other side.")
+    : (currentLang === "th" ? "ตอบฝั่งแรกให้จบ แล้วส่งเครื่องให้อีกฝ่ายตอบต่อ" : "Finish the first side, then pass the device to the other side.");
   renderShell(`
     <section class="section court-panel">
-      <div class="glass-card question-card">
-        <p class="eyebrow">${t("linkInvite.eyebrow")}</p>
-        <h2>${item.icon} ${getCaseTitle(item)}</h2>
-        <p class="subtitle">${t("linkInvite.subtitle")}</p>
-        <button class="btn primary" type="button" data-accept-link>${t("buttons.acceptLink")}</button>
+      <div class="glass-card question-card first-responder-panel">
+        <p class="eyebrow">${currentLang === "th" ? "เลือกคนเปิดคำให้การ" : "Choose First Testimony"}</p>
+        <h2>${currentLang === "th" ? "ใครจะตอบก่อน?" : "Who answers first?"}</h2>
+        <p class="subtitle">${escapeHtml(methodCopy)}</p>
+        <div class="link-case-summary">
+          <div><span>${t("verdictCard.plaintiff")}</span><strong>${escapeHtml(state.plaintiffName)}</strong></div>
+          <div><span>${t("verdictCard.defendant")}</span><strong>${escapeHtml(state.defendantName)}</strong></div>
+          <div><span>${t("verdictCard.caseTitle")}</span><strong>${getCaseTitle(item)}</strong></div>
+        </div>
+        <div class="first-responder-grid">
+          <button class="mode-choice-card" type="button" data-first-responder="plaintiff">
+            <span aria-hidden="true">§</span>
+            <strong>${currentLang === "th" ? "ผู้ฟ้องตอบก่อน" : "Plaintiff First"}</strong>
+            <small>${escapeHtml(getPartyName("plaintiff"))}</small>
+          </button>
+          <button class="mode-choice-card is-featured" type="button" data-first-responder="defendant">
+            <span aria-hidden="true">⚖</span>
+            <strong>${currentLang === "th" ? "จำเลยตอบก่อน" : "Defendant First"}</strong>
+            <small>${escapeHtml(getPartyName("defendant"))}</small>
+          </button>
+        </div>
+      </div>
+    </section>
+  `);
+  app.querySelectorAll("[data-first-responder]").forEach((button) => {
+    button.addEventListener("click", () => beginFriendFirstRound(button.dataset.firstResponder));
+  });
+}
+
+function beginFriendFirstRound(role) {
+  const firstRole = normalizeFriendRole(role);
+  state.firstResponder = firstRole;
+  state.activePlayer = firstRole;
+  state.answers = [];
+  state.playerA = null;
+  state.playerB = null;
+  state.latestVerdict = null;
+  state.mode = state.friendPlayMethod === "share_link" ? "friend-share-first" : "duo-same";
+  location.hash = "#question";
+}
+
+function renderLinkInvite() {
+  const item = getCase(state.selectedCaseId);
+  const isFriendShare = state.sharePayload?.kind === "friend_share_link";
+  const plaintiff = state.plaintiffName || state.sharePayload?.plaintiffName || "";
+  const defendant = state.defendantName || state.sharePayload?.defendantName || "";
+  const firstRole = normalizeFriendRole(state.sharePayload?.firstRole || "plaintiff");
+  const nextRole = normalizeFriendRole(state.sharePayload?.nextRole || getOppositeRole(firstRole));
+  const firstPlayerName = firstRole === "plaintiff" ? plaintiff : defendant;
+  const nextPlayerName = nextRole === "plaintiff" ? plaintiff : defendant;
+  const handoffTitle = getFriendHandoffTitle(nextRole);
+  const handoffSubtitle = getFriendHandoffSubtitle(nextRole);
+  renderShell(`
+    <section class="section court-panel">
+      <div class="glass-card question-card share-case-panel">
+        <p class="eyebrow">${isFriendShare && state.sharePayload?.player ? getFriendHandoffEyebrow(firstRole) : t("linkInvite.eyebrow")}</p>
+        <h2>${isFriendShare && state.sharePayload?.player ? escapeHtml(handoffTitle) : `${item.icon} ${getCaseTitle(item)}`}</h2>
+        ${isFriendShare && state.sharePayload?.player ? `<p class="subtitle">${escapeHtml(handoffSubtitle)}</p>` : ""}
+        ${isFriendShare ? `
+          <div class="link-case-summary">
+            <div><span>${t("verdictCard.plaintiff")}</span><strong>${escapeHtml(plaintiff)}</strong></div>
+            <div><span>${t("verdictCard.defendant")}</span><strong>${escapeHtml(defendant)}</strong></div>
+            <div><span>${t("verdictCard.caseTitle")}</span><strong>${getCaseTitle(item)}</strong></div>
+            ${state.sharePayload?.player ? `
+              <div><span>${currentLang === "th" ? "ตอบแล้ว" : "Answered"}</span><strong>${escapeHtml(firstPlayerName)}</strong></div>
+              <div><span>${currentLang === "th" ? "ถึงตา" : "Your turn"}</span><strong>${escapeHtml(nextPlayerName)}</strong></div>
+            ` : ""}
+          </div>
+        ` : `<p class="subtitle">${t("linkInvite.subtitle")}</p>`}
+        <button class="btn primary" type="button" data-accept-link>${isFriendShare && state.sharePayload?.player ? getStartRoleButtonText(nextRole) : t("buttons.acceptLink")}</button>
       </div>
     </section>
   `);
   app.querySelector("[data-accept-link]").addEventListener("click", () => {
-    state.mode = "duo-link-b";
+    state.mode = isFriendShare && state.sharePayload?.player ? "friend-share-respond" : isFriendShare ? "solo" : "duo-link-b";
+    state.playMode = isFriendShare ? "friend" : state.playMode;
+    state.friendPlayMethod = isFriendShare ? "share_link" : state.friendPlayMethod;
+    if (isFriendShare && state.sharePayload?.player) {
+      setFriendPlayerResult(firstRole, state.sharePayload.player);
+      state.firstResponder = firstRole;
+    }
     state.answers = [];
-    state.activePlayer = "B";
+    state.activePlayer = isFriendShare && state.sharePayload?.player ? nextRole : "B";
+    location.hash = "#question";
+  });
+}
+
+function renderShareCase() {
+  if (!hasParties()) {
+    showToast(t("signup.required"));
+    location.hash = "#home";
+    return;
+  }
+  if (!getCompletedFirstPlayer()) {
+    renderFirstResponder();
+    return;
+  }
+  const item = getCase(state.selectedCaseId || cases[0].id);
+  const firstRole = normalizeFriendRole(state.firstResponder || getCompletedFirstRole() || "plaintiff");
+  const nextRole = getOppositeRole(firstRole);
+  const firstName = getPartyName(firstRole);
+  const nextName = getPartyName(nextRole);
+  const handoffTitle = getFriendHandoffTitle(nextRole);
+  const handoffSubtitle = getFriendHandoffSubtitle(nextRole);
+  renderShell(`
+    <section class="section court-panel">
+      <div class="glass-card question-card share-case-panel">
+        <p class="eyebrow">${getFriendHandoffEyebrow(firstRole)}</p>
+        <h2>${escapeHtml(handoffTitle)}</h2>
+        <p class="subtitle">${escapeHtml(handoffSubtitle)}</p>
+        <div class="link-case-summary">
+          <div><span>${t("verdictCard.plaintiff")}</span><strong>${escapeHtml(state.plaintiffName)}</strong></div>
+          <div><span>${t("verdictCard.defendant")}</span><strong>${escapeHtml(state.defendantName)}</strong></div>
+          <div><span>${t("verdictCard.caseTitle")}</span><strong>${getCaseTitle(item)}</strong></div>
+          <div><span>${currentLang === "th" ? "ตอบแล้ว" : "Answered"}</span><strong>${escapeHtml(firstName)}</strong></div>
+          <div><span>${currentLang === "th" ? "รอคำตอบจาก" : "Waiting for"}</span><strong>${escapeHtml(nextName)}</strong></div>
+        </div>
+        <button class="btn primary big-action" type="button" data-share-friend-link>${getSendRoleLinkButtonText(nextRole)}</button>
+        <button class="btn ghost" type="button" data-start-local-case>${getStartRoleButtonText(nextRole)}</button>
+      </div>
+    </section>
+  `);
+  app.querySelector("[data-share-friend-link]").addEventListener("click", () => shareFriendPlayableLink());
+  app.querySelector("[data-start-local-case]").addEventListener("click", () => {
+    state.answers = [];
+    state.activePlayer = nextRole;
+    state.mode = "friend-share-respond";
     location.hash = "#question";
   });
 }
@@ -3639,7 +3937,13 @@ function startCase(caseId) {
   state.playerB = null;
   state.latestVerdict = null;
   state.activePlayer = "A";
+  state.firstResponder = null;
   if (state.mode === "instant") state.mode = "solo";
+  if (isFriendSameDeviceFlow()) state.mode = "duo-same";
+  if (isFriendPlayFlow()) {
+    location.hash = "#first-player";
+    return;
+  }
   location.hash = "#question";
 }
 
@@ -3647,9 +3951,17 @@ function startRandomFriendCase() {
   const item = cases[Math.floor(Math.random() * cases.length)] || cases[0];
   state.selectedCaseId = item.id;
   state.answers = [];
+  state.playerA = null;
+  state.playerB = null;
   state.latestVerdict = null;
-  state.mode = "solo";
-  trackEvent("start_solo", { mode: "random_friend_case", case_id: state.selectedCaseId });
+  state.activePlayer = "A";
+  state.firstResponder = null;
+  state.mode = isFriendSameDeviceFlow() ? "duo-same" : "solo";
+  trackEvent(state.mode === "duo-same" ? "start_duo" : "start_solo", { mode: "random_friend_case", case_id: state.selectedCaseId });
+  if (isFriendPlayFlow()) {
+    location.hash = "#first-player";
+    return;
+  }
   location.hash = "#question";
 }
 
@@ -3744,7 +4056,8 @@ function renderQuestion() {
   const total = item.questions.length;
   const current = state.answers.length + 1;
   const answerMarks = t("question.answerMarks");
-  const playerLabel = state.mode === "duo-same"
+  const roundInfo = getQuestionRoundInfo();
+  const playerLabel = state.mode === "duo-same" && !roundInfo
     ? t("question.player", { player: state.activePlayer })
     : state.mode === "duo-link-b" ? t("question.friendSide") : "";
   renderShell(`
@@ -3754,6 +4067,12 @@ function renderQuestion() {
       </div>
       <article class="glass-card question-card">
         <p class="question-meta">${item.icon} ${getCaseTitle(item)} ${playerLabel ? `• ${playerLabel}` : ""}</p>
+        ${roundInfo ? `
+          <div class="friend-round-banner">
+            <strong>${escapeHtml(roundInfo.title)}</strong>
+            <span>${escapeHtml(roundInfo.subtitle)}</span>
+          </div>
+        ` : ""}
         <h2>${getQuestionText(question)}</h2>
         <p class="subtitle">${t("question.item", { current, total })}</p>
         <div class="answer-list">
@@ -3782,16 +4101,47 @@ function renderQuestion() {
 function finishAnswers() {
   const item = getCase(state.selectedCaseId);
   const scores = calculateScores(state.answers);
-  if (state.mode === "duo-same" && state.activePlayer === "A") {
-    state.playerA = makePlayerResult(localText("ผู้เล่น A", "Player A"), item, scores);
+  if (isFriendSameDeviceMode()) {
+    const role = getActiveFriendRole();
+    const player = makePlayerResult(partyNameText(role), item, scores);
+    player.side = role;
+    setFriendPlayerResult(role, player);
+    state.answers = [];
+    const nextRole = getOppositeRole(role);
+    if (!getFriendPlayerResult(nextRole)) {
+      state.activePlayer = nextRole;
+      renderBetweenPlayers();
+      return;
+    }
+    state.latestVerdict = makeFriendDuoVerdict(state.playerA, state.playerB, item);
+  } else if (state.mode === "friend-share-first") {
+    const role = getActiveFriendRole();
+    const player = makePlayerResult(partyNameText(role), item, scores);
+    player.side = role;
+    setFriendPlayerResult(role, player);
+    state.firstResponder = role;
+    state.answers = [];
+    location.hash = "#share-case";
+    return;
+  } else if (state.mode === "friend-share-respond") {
+    const role = getActiveFriendRole();
+    const player = makePlayerResult(partyNameText(role), item, scores);
+    player.side = role;
+    setFriendPlayerResult(role, player);
+    state.latestVerdict = makeFriendDuoVerdict(state.playerA, state.playerB, item);
+  } else if (state.mode === "duo-same" && state.activePlayer === "A") {
+    state.playerA = makePlayerResult(isFriendSameDeviceFlow() ? partyNameText("plaintiff") : localText("ผู้เล่น A", "Player A"), item, scores);
+    state.playerA.side = isFriendSameDeviceFlow() ? "plaintiff" : "A";
     state.answers = [];
     state.activePlayer = "B";
     renderBetweenPlayers();
     return;
-  }
-  if (state.mode === "duo-same") {
-    state.playerB = makePlayerResult(localText("ผู้เล่น B", "Player B"), item, scores);
-    state.latestVerdict = makeDuoVerdict(state.playerA, state.playerB, item);
+  } else if (state.mode === "duo-same") {
+    state.playerB = makePlayerResult(isFriendSameDeviceFlow() ? partyNameText("defendant") : localText("ผู้เล่น B", "Player B"), item, scores);
+    state.playerB.side = isFriendSameDeviceFlow() ? "defendant" : "B";
+    state.latestVerdict = isFriendSameDeviceFlow()
+      ? makeFriendDuoVerdict(state.playerA, state.playerB, item)
+      : makeDuoVerdict(state.playerA, state.playerB, item);
   } else if (state.mode === "duo-link-a") {
     state.playerA = makePlayerResult(localText("ฝั่งเรา", "Our side"), item, scores);
     state.latestVerdict = makeShareVerdict(state.playerA, item);
@@ -3812,13 +4162,28 @@ function finishAnswers() {
 }
 
 function renderBetweenPlayers() {
+  const isFriendHandoff = isFriendSameDeviceMode();
+  const nextRole = getActiveFriendRole();
+  const completedLabel = getRoleLabel(getOppositeRole(nextRole));
+  const title = isFriendHandoff
+    ? getFriendHandoffTitle(nextRole)
+    : t("between.title");
+  const subtitle = isFriendHandoff
+    ? getFriendHandoffSubtitle(nextRole)
+    : t("between.subtitle");
+  const eyebrow = isFriendHandoff
+    ? (currentLang === "th" ? `รอบ${completedLabel}เสร็จแล้ว` : `${completedLabel} round complete`)
+    : t("between.eyebrow");
+  const buttonText = isFriendHandoff
+    ? getStartRoleButtonText(nextRole)
+    : t("buttons.nextPlayer");
   renderShell(`
     <section class="section court-panel">
       <div class="glass-card question-card">
-        <p class="eyebrow">${t("between.eyebrow")}</p>
-        <h2>${t("between.title")}</h2>
-        <p class="subtitle">${t("between.subtitle")}</p>
-        <button class="btn primary" type="button" data-next-player>${t("buttons.nextPlayer")}</button>
+        <p class="eyebrow">${eyebrow}</p>
+        <h2>${escapeHtml(title)}</h2>
+        <p class="subtitle">${escapeHtml(subtitle)}</p>
+        <button class="btn primary" type="button" data-next-player>${buttonText}</button>
       </div>
     </section>
   `);
@@ -3836,6 +4201,7 @@ function renderVerdict() {
       ${renderVerdictCard(verdict)}
       <aside class="verdict-actions" aria-label="${t("verdict.actionsLabel")}">
         <button class="btn pink big-action" type="button" data-share-image>${t("buttons.sendToDefendant")}</button>
+        ${isFriendModeVerdict(verdict) ? `<button class="btn primary big-action" type="button" data-send-friend-continue>${t("buttons.sendFriendContinue")}</button>` : ""}
         <button class="btn ghost" type="button" data-copy-link>${t("buttons.copyLink")}</button>
         <div class="save-image-block">
           <button class="btn" type="button" data-save-image>${t("buttons.saveVerdictImage")}</button>
@@ -3857,6 +4223,7 @@ function renderVerdictCard(verdict) {
   const friendshipStatus = getLocalized(verdict.friendshipStatus);
   const parties = getVerdictParties(verdict);
   const reaction = getVerdictReaction(verdict);
+  const friendSummary = getFriendCaseSummary(verdict);
   if (verdict.type === "duo") {
     return `
       <article id="verdictCard" class="verdict-card">
@@ -3868,8 +4235,13 @@ function renderVerdictCard(verdict) {
           <span class="case-number">${caseNumber}</span>
         </div>
         <div class="stamp-wrap"><div class="stamp">${t("verdict.judged")}</div></div>
+        <div class="party-grid">
+          <div><span>${t("verdictCard.plaintiff")}</span><strong>${escapeHtml(parties.plaintiff)}</strong></div>
+          <div><span>${t("verdictCard.defendant")}</span><strong>${escapeHtml(parties.defendant)}</strong></div>
+        </div>
         <p class="case-name">${caseTitle}</p>
         <h2>${title}</h2>
+        ${friendSummary ? renderFriendReactionStrip(friendSummary) : ""}
         <p class="verdict-text">${text}</p>
         <div class="duo-board">
           <div class="duo-score"><strong><span>${getLocalized(verdict.playerA.name)}</span><span>${verdict.playerA.guilty}%</span></strong><p>${t("verdict.suspiciousPercent")}</p></div>
@@ -3886,6 +4258,7 @@ function renderVerdictCard(verdict) {
             <strong>${friendshipStatus}</strong>
           </section>
         </div>
+        ${friendSummary ? renderFriendSummaryCard(friendSummary) : ""}
       </article>
     `;
   }
@@ -3925,8 +4298,85 @@ function renderVerdictCard(verdict) {
           <strong>${friendshipStatus}</strong>
         </section>
       </div>
+      ${friendSummary ? renderFriendSummaryCard(friendSummary) : ""}
     </article>
   `;
+}
+
+function renderFriendSummaryCard(summary) {
+  const rows = [
+    [currentLang === "th" ? "ผู้ฟ้อง" : "Plaintiff", summary.plaintiff],
+    [currentLang === "th" ? "จำเลย" : "Defendant", summary.defendant],
+    [currentLang === "th" ? "คดี" : "Case", summary.caseTitle],
+    ...(summary.plaintiffScore != null ? [[currentLang === "th" ? "คะแนนผู้ฟ้อง" : "Plaintiff score", `${summary.plaintiffScore}`]] : []),
+    ...(summary.defendantScore != null ? [[currentLang === "th" ? "คะแนนจำเลย" : "Defendant score", `${summary.defendantScore}`]] : []),
+    [currentLang === "th" ? "ผลตัดสิน" : "Verdict", summary.status],
+    [currentLang === "th" ? "ผู้ชนะ" : "Winner", summary.winnerName],
+    [currentLang === "th" ? "ผู้แพ้/ผู้มีพิรุธ" : "Loser / Suspect", summary.loserName]
+  ];
+  return `
+    <section class="friend-summary-card">
+      <div class="friend-summary-head">
+        <span>${currentLang === "th" ? "สรุปคดีเล่นกับเพื่อน" : "Play with Friend Summary"}</span>
+        <strong>${summary.status}</strong>
+      </div>
+      <dl>
+        ${rows.map(([label, value]) => `<div><dt>${label}</dt><dd>${escapeHtml(value)}</dd></div>`).join("")}
+      </dl>
+      <span class="friend-summary-stamp">${currentLang === "th" ? "ศาลรับรอง" : "Court Certified"}</span>
+    </section>
+  `;
+}
+
+function renderFriendReactionStrip(summary) {
+  if (summary.plaintiffScore == null || summary.defendantScore == null) return "";
+  const faces = getFriendSummaryFaces(summary);
+  if (faces.tie) {
+    return `
+      <div class="duo-reaction-strip is-tie">
+        <div class="duo-reaction-person">
+          <span aria-hidden="true">${faces.tie.emoji}</span>
+          <strong>${faces.tie.label}</strong>
+        </div>
+      </div>
+    `;
+  }
+  return `
+    <div class="duo-reaction-strip">
+      <div class="duo-reaction-person ${faces.plaintiff.className}">
+        <span aria-hidden="true">${faces.plaintiff.emoji}</span>
+        <strong>${escapeHtml(summary.plaintiff)}</strong>
+        <small>${faces.plaintiff.label}</small>
+      </div>
+      <div class="duo-reaction-person ${faces.defendant.className}">
+        <span aria-hidden="true">${faces.defendant.emoji}</span>
+        <strong>${escapeHtml(summary.defendant)}</strong>
+        <small>${faces.defendant.label}</small>
+      </div>
+    </div>
+  `;
+}
+
+function getFriendSummaryFaces(summary) {
+  const winnerLabel = currentLang === "th" ? "ผู้ชนะยิ้มมุมปาก" : "Winner looks confident";
+  const loserLabel = currentLang === "th" ? "ผู้มีพิรุธเสียอาการ" : "Suspicious side is shaken";
+  if (summary.kind === "tie" || Number(summary.plaintiffScore) === Number(summary.defendantScore)) {
+    return {
+      tie: {
+        emoji: "🤔",
+        label: currentLang === "th" ? "ศาลงง ทั้งคู่มีพิรุธพอกัน" : "Court is confused. Both sides look equally sus."
+      }
+    };
+  }
+  const plaintiffLoses = summary.kind === "plaintiff_guilty" || Number(summary.plaintiffScore) > Number(summary.defendantScore);
+  return {
+    plaintiff: plaintiffLoses
+      ? { emoji: "😭", label: loserLabel, className: "is-sad" }
+      : { emoji: "😎", label: winnerLabel, className: "is-happy" },
+    defendant: plaintiffLoses
+      ? { emoji: "😎", label: winnerLabel, className: "is-happy" }
+      : { emoji: "😭", label: loserLabel, className: "is-sad" }
+  };
 }
 
 function getVerdictCaseNumber(verdict) {
@@ -3935,6 +4385,65 @@ function getVerdictCaseNumber(verdict) {
   const index = cases.findIndex((item) => item.id === caseId || item.title === localizedCaseTitle);
   const number = index >= 0 ? index + 1 : Math.max(1, String(localizedCaseTitle).length);
   return `${t("cases.caseNo")} ${String(number).padStart(3, "0")}`;
+}
+
+function isFriendModeVerdict(verdict) {
+  return verdict?.playMode === "friend";
+}
+
+function getFriendCaseSummary(verdict) {
+  if (!isFriendModeVerdict(verdict)) return null;
+  const parties = getVerdictParties(verdict);
+  const caseTitle = getLocalized(verdict.caseTitle);
+  if (verdict.plaintiffSuspicionScore != null && verdict.defendantSuspicionScore != null) {
+    return {
+      plaintiff: parties.plaintiff,
+      defendant: parties.defendant,
+      caseTitle,
+      plaintiffScore: verdict.plaintiffSuspicionScore,
+      defendantScore: verdict.defendantSuspicionScore,
+      status: getLocalized(verdict.verdictStatus || verdict.title),
+      winnerName: getLocalized(verdict.winnerName),
+      loserName: getLocalized(verdict.loserName),
+      guiltyPerson: getLocalized(verdict.guiltyPerson),
+      kind: verdict.outcome === "tie"
+        ? "tie"
+        : verdict.outcome === "plaintiff_loses" ? "plaintiff_guilty" : "defendant_guilty"
+    };
+  }
+  const status = getFriendVerdictStatus(verdict);
+  if (status.kind === "tie") {
+    return {
+      plaintiff: parties.plaintiff,
+      defendant: parties.defendant,
+      caseTitle,
+      status: status.label,
+      winnerName: currentLang === "th" ? "เสมอ" : "Tie",
+      loserName: currentLang === "th" ? "ไม่มีใครรอดจากศาลนี้" : "Nobody escapes this court"
+    };
+  }
+  const defendantLoses = status.kind === "defendant_guilty";
+  return {
+    plaintiff: parties.plaintiff,
+    defendant: parties.defendant,
+    caseTitle,
+    status: status.label,
+    winnerName: defendantLoses ? parties.plaintiff : parties.defendant,
+    loserName: defendantLoses ? parties.defendant : parties.plaintiff
+  };
+}
+
+function getFriendVerdictStatus(verdict) {
+  if (verdict.outcome === "tie") {
+    return { kind: "tie", label: currentLang === "th" ? "ศาลให้เสมอ" : "The court calls it a tie" };
+  }
+  if (verdict.outcome === "plaintiff_loses") {
+    return { kind: "plaintiff_guilty", label: currentLang === "th" ? "ผู้ฟ้องมีพิรุธ ศาลตีกลับคำฟ้อง" : "Plaintiff looks suspicious" };
+  }
+  const defendantGuilty = verdict.outcome === "defendant_loses" || Number(verdict.guilty || 0) >= 58;
+  return defendantGuilty
+    ? { kind: "defendant_guilty", label: currentLang === "th" ? "จำเลยมีความผิด" : "Defendant is guilty" }
+    : { kind: "defendant_clear", label: currentLang === "th" ? "จำเลยพ้นผิด" : "Defendant is cleared" };
 }
 
 function renderHistory() {
@@ -4011,6 +4520,7 @@ function bindVerdictActions(verdict) {
       state.latestVerdict = null;
       state.selectedCaseId = null;
       state.mode = "instant";
+      state.playMode = null;
       location.hash = "#home";
     });
   });
@@ -4019,6 +4529,9 @@ function bindVerdictActions(verdict) {
   });
   app.querySelectorAll("[data-share-image]").forEach((button) => {
     button.addEventListener("click", () => exportVerdictImage(verdict, "share"));
+  });
+  app.querySelectorAll("[data-send-friend-continue]").forEach((button) => {
+    button.addEventListener("click", () => exportVerdictImage(verdict, "friend"));
   });
   app.querySelectorAll("[data-copy-link]").forEach((button) => {
     button.addEventListener("click", () => copyText(getShareUrl(verdict)));
@@ -4127,6 +4640,8 @@ function makeSoloVerdict(item, scores, isDaily) {
       : localText(translations.th.verdict.soloStatusLow, translations.en.verdict.soloStatusLow),
     plaintiffName: state.plaintiffName,
     defendantName: state.defendantName,
+    playMode: state.playMode || "solo",
+    friendPlayMethod: state.friendPlayMethod || "",
     outcome: player.guilty >= 58 ? "defendant_loses" : "defendant_wins",
     shareText: ""
   };
@@ -4232,6 +4747,118 @@ function makeDuoVerdict(playerA, playerB, item) {
   };
   verdict.shareText = buildShareText(verdict);
   return verdict;
+}
+
+function makeFriendDuoVerdict(plaintiffPlayer, defendantPlayer, item) {
+  const compatibility = calculateCompatibility(plaintiffPlayer.scores, defendantPlayer.scores);
+  const relationship = pickRelationship(plaintiffPlayer, defendantPlayer, compatibility);
+  const plaintiffScore = plaintiffPlayer.guilty;
+  const defendantScore = defendantPlayer.guilty;
+  const plaintiff = getPartyName("plaintiff");
+  const defendant = getPartyName("defendant");
+  const scoreDiff = Math.abs(defendantScore - plaintiffScore);
+  let outcome;
+  let verdictStatus;
+  let winnerName;
+  let loserName;
+  let guiltyPerson;
+
+  if (defendantScore > plaintiffScore) {
+    outcome = "defendant_loses";
+    verdictStatus = localText("จำเลยมีความผิด", "Defendant is guilty");
+    winnerName = localText(plaintiff, plaintiff);
+    loserName = localText(defendant, defendant);
+    guiltyPerson = localText(defendant, defendant);
+  } else if (plaintiffScore > defendantScore) {
+    outcome = "plaintiff_loses";
+    verdictStatus = localText("ผู้ฟ้องมีพิรุธ ศาลตีกลับคำฟ้อง", "Plaintiff looks suspicious. The court returns the complaint.");
+    winnerName = localText(defendant, defendant);
+    loserName = localText(plaintiff, plaintiff);
+    guiltyPerson = localText(plaintiff, plaintiff);
+  } else {
+    outcome = "tie";
+    verdictStatus = localText("ศาลตัดสินว่าทั้งสองฝ่ายน่าสงสัยพอกัน", "The court finds both sides equally suspicious");
+    winnerName = localText("เสมอ", "Tie");
+    loserName = localText("ทั้งคู่", "Both sides");
+    guiltyPerson = localText("ทั้งคู่", "Both sides");
+  }
+
+  const verdict = {
+    type: "duo",
+    caseId: item.id,
+    caseTitle: caseTitleValue(item),
+    title: verdictStatus,
+    text: buildFriendDuoVerdictText({
+      plaintiff,
+      defendant,
+      caseTitle: caseTitleValue(item),
+      plaintiffScore,
+      defendantScore,
+      scoreDiff,
+      outcome
+    }),
+    playerA: plaintiffPlayer,
+    playerB: defendantPlayer,
+    plaintiffName: plaintiff,
+    defendantName: defendant,
+    plaintiffSuspicionScore: plaintiffScore,
+    defendantSuspicionScore: defendantScore,
+    verdictStatus,
+    winnerName,
+    loserName,
+    guiltyPerson,
+    outcome,
+    compatibility,
+    relationship,
+    guilty: Math.max(plaintiffScore, defendantScore),
+    role: localText("ศาลเทียบคะแนนความน่าสงสัยของทั้งสองฝ่าย", "The court compared both suspicion scores"),
+    punishment: buildFriendDuoPunishment(outcome, guiltyPerson, plaintiffScore + defendantScore + compatibility),
+    friendshipStatus: outcome === "tie"
+      ? localText("สถานะ: ศาลขอให้ทั้งคู่หัวเราะแล้วเริ่มคดีใหม่", "Status: both sides should laugh and file a new case")
+      : localText(`ผู้มีพิรุธ: ${getLocalizedForLang(guiltyPerson, "th")}`, `Suspicious party: ${getLocalizedForLang(guiltyPerson, "en")}`),
+    playMode: "friend",
+    friendPlayMethod: state.friendPlayMethod || "same_device",
+    shareText: ""
+  };
+  verdict.shareText = buildShareText(verdict);
+  return verdict;
+}
+
+function buildFriendDuoVerdictText(details) {
+  const caseTitleTh = getLocalizedForLang(details.caseTitle, "th");
+  const caseTitleEn = getLocalizedForLang(details.caseTitle, "en");
+  if (details.outcome === "defendant_loses") {
+    return localText(
+      `ศาลเทียบคำให้การในคดี “${caseTitleTh}” แล้วพบว่า ${details.defendant} มีคะแนนความน่าสงสัยสูงกว่า ${details.plaintiff} อยู่ ${details.scoreDiff} คะแนน คำฟ้องจึงผ่านฉลุย`,
+      `In “${caseTitleEn}”, ${details.defendant} scores ${details.scoreDiff} suspicion points higher than ${details.plaintiff}. Complaint accepted.`
+    );
+  }
+  if (details.outcome === "plaintiff_loses") {
+    return localText(
+      `ศาลเทียบคำให้การในคดี “${caseTitleTh}” แล้วพบว่า ${details.plaintiff} น่าสงสัยกว่า ${details.defendant} อยู่ ${details.scoreDiff} คะแนน คำฟ้องนี้เลยโดนตีกลับแบบมีพิรุธ`,
+      `In “${caseTitleEn}”, ${details.plaintiff} scores ${details.scoreDiff} suspicion points higher than ${details.defendant}. The complaint boomerangs.`
+    );
+  }
+  return localText(
+    `ศาลเทียบคำให้การในคดี “${caseTitleTh}” แล้วพบว่าทั้งสองฝ่ายได้ ${details.plaintiffScore} คะแนนเท่ากัน คดีนี้ไม่มีใครรอดจากสายตาศาล`,
+    `In “${caseTitleEn}”, both sides land on ${details.plaintiffScore} suspicion points. Nobody fully escapes this court.`
+  );
+}
+
+function buildFriendDuoPunishment(outcome, guiltyPerson, seed) {
+  const guiltyNameTh = getLocalizedForLang(guiltyPerson, "th");
+  const guiltyNameEn = getLocalizedForLang(guiltyPerson, "en");
+  if (outcome === "tie") {
+    return localText(
+      "ทั้งคู่ต้องส่งสติกเกอร์ขอโทษในแชต แล้วตั้งคดีใหม่ให้ศาลตัดสินซ้ำ",
+      "Both sides must send apology stickers and file a fresh case."
+    );
+  }
+  const base = pickPunishment(seed);
+  return localText(
+    `${guiltyNameTh} ต้องรับโทษ: ${getLocalizedForLang(base, "th")}`,
+    `${guiltyNameEn} receives the sentence: ${getLocalizedForLang(base, "en")}`
+  );
 }
 
 function buildDuoVerdictText(playerA, playerB, compatibility, moreGuilty) {
@@ -4432,8 +5059,11 @@ async function exportVerdictImage(verdict, mode = "save") {
     const friendshipStatus = getLocalized(verdict.friendshipStatus);
     const parties = getVerdictParties(verdict);
     const reaction = getVerdictReaction(verdict);
+    const friendSummary = getFriendCaseSummary(verdict);
+    const documentHeight = friendSummary ? 1468 : 1186;
+    const friendSummaryHeight = friendSummary ? 306 : 0;
     canvas.width = 1080;
-    canvas.height = 1350;
+    canvas.height = friendSummary ? 1760 : 1350;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
@@ -4446,10 +5076,10 @@ async function exportVerdictImage(verdict, mode = "save") {
     drawShareBlob(ctx, 72, 78, 300, "#F8D36B", 0.18);
     drawShareBlob(ctx, 775, 70, 260, "#1D4ED8", 0.2);
     drawShareBlob(ctx, 760, 1040, 320, "#F59E0B", 0.12);
-    roundRect(ctx, 70, 82, 940, 1186, 56, "#FFF9E8");
+    roundRect(ctx, 70, 82, 940, documentHeight, 56, "#FFF9E8");
     ctx.strokeStyle = "rgba(184, 134, 11, 0.55)";
     ctx.lineWidth = 4;
-    roundRectStroke(ctx, 98, 112, 884, 1126, 38);
+    roundRectStroke(ctx, 98, 112, 884, documentHeight - 60, 38);
 
     ctx.fillStyle = "#64748B";
     drawWrappedText(ctx, t("verdict.kicker"), 130, 166, 520, 32, canvasFont(900, 26), 1);
@@ -4487,7 +5117,10 @@ async function exportVerdictImage(verdict, mode = "save") {
     ctx.save();
     ctx.translate(760, 610);
     ctx.rotate(reaction.className === "is-happy" ? 0.08 : -0.08);
-    roundRect(ctx, -105, -105, 210, 210, 46, reaction.className === "is-happy" ? "#E8F8C8" : "#FFE0C8");
+    const reactionFill = reaction.className === "is-happy"
+      ? "#E8F8C8"
+      : reaction.className === "is-confused" ? "#EAF4FF" : "#FFE0C8";
+    roundRect(ctx, -105, -105, 210, 210, 46, reactionFill);
     ctx.font = canvasFont(900, 112);
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -4512,19 +5145,25 @@ async function exportVerdictImage(verdict, mode = "save") {
 
     const punishmentY = verdict.type === "duo" ? scoreTop + 238 : verdict.type === "instant" ? scoreTop + 150 : scoreTop + 230;
     drawInfoBox(ctx, 130, punishmentY, 810, 130, t("verdictCard.punishment"), punishment);
-    drawInfoBox(ctx, 130, punishmentY + 158, 810, 120, "Friend Court", friendshipStatus);
+    if (friendSummary) {
+      drawFriendSummaryCanvas(ctx, 130, punishmentY + 158, 810, friendSummaryHeight, friendSummary);
+    } else {
+      drawInfoBox(ctx, 130, punishmentY + 158, 810, 120, "Friend Court", friendshipStatus);
+    }
 
     ctx.fillStyle = "#64748B";
-    drawWrappedText(ctx, t("export.footer"), 130, 1198, 720, 36, canvasFont(900, 30), 1);
+    drawWrappedText(ctx, t("export.footer"), 130, canvas.height - 152, 720, 36, canvasFont(900, 30), 1);
     ctx.fillStyle = "#64748B";
-    drawWrappedText(ctx, t("export.disclaimer"), 130, 1240, 720, 30, canvasFont(700, 24), 1);
+    drawWrappedText(ctx, t("export.disclaimer"), 130, canvas.height - 110, 720, 30, canvasFont(700, 24), 1);
 
-    if (mode === "share") {
+    if (mode === "friend") {
+      await shareFriendContinueCanvas(canvas, verdict);
+    } else if (mode === "share") {
       await shareCanvasPng(canvas);
     } else {
       await saveCanvasPng(canvas);
     }
-    trackEvent(mode === "share" ? "share_verdict" : "save_result_image", {
+    trackEvent(mode === "save" ? "save_result_image" : "share_verdict", {
       case_id: verdict.caseId || verdict.player?.caseId || verdict.playerA?.caseId || "",
       verdict_type: verdict.type
     });
@@ -4612,6 +5251,103 @@ async function shareCanvasPng(canvas) {
     }
   }
   openBlobImage(blob, t("toast.imageShareFallback"));
+}
+
+async function shareFriendContinueCanvas(canvas, verdict) {
+  const text = buildFriendContinueText(verdict);
+  const url = getShareUrl(verdict);
+  const blob = await canvasToBlob(canvas);
+  const file = blob ? createVerdictImageFile(blob) : null;
+  if (file && navigator.canShare?.({ files: [file] }) && typeof navigator.share === "function") {
+    try {
+      await navigator.share({
+        title: "Friend Court",
+        text,
+        url,
+        files: [file]
+      });
+      return;
+    } catch (error) {
+      if (isShareCancelled(error)) {
+        showToast(t("toast.shareCancelled"));
+        return;
+      }
+      console.warn("Friend image share failed:", error);
+    }
+  }
+  if (typeof navigator.share === "function") {
+    try {
+      await navigator.share({ title: "Friend Court", text, url });
+      return;
+    } catch (error) {
+      if (isShareCancelled(error)) {
+        showToast(t("toast.shareCancelled"));
+        return;
+      }
+      console.warn("Friend link share failed:", error);
+    }
+  }
+  copyText(`${text}\n${url}`, t("toast.friendInviteCopied"));
+}
+
+async function shareFriendPlayableLink() {
+  const url = buildFriendPlayableUrl();
+  const text = buildFriendPlayableText(url);
+  if (typeof navigator.share === "function") {
+    try {
+      await navigator.share({ title: "Friend Court", text, url });
+      return;
+    } catch (error) {
+      if (isShareCancelled(error)) {
+        showToast(t("toast.shareCancelled"));
+        return;
+      }
+      console.warn("Friend playable link share failed:", error);
+    }
+  }
+  copyText(text, t("toast.friendInviteCopied"));
+}
+
+function buildFriendPlayableUrl() {
+  const firstRole = normalizeFriendRole(state.firstResponder || getCompletedFirstRole() || "plaintiff");
+  const player = getFriendPlayerResult(firstRole);
+  const url = new URL(SITE_URL);
+  url.hash = "case-link";
+  url.searchParams.set(SHARE_PARAM, encodePayload({
+    kind: "friend_share_link",
+    method: "share_link",
+    plaintiffName: state.plaintiffName,
+    defendantName: state.defendantName,
+    caseId: state.selectedCaseId,
+    firstRole,
+    nextRole: getOppositeRole(firstRole),
+    player
+  }));
+  return url.toString();
+}
+
+function buildFriendPlayableText(url) {
+  const item = getCase(state.selectedCaseId || cases[0].id);
+  const firstRole = normalizeFriendRole(state.firstResponder || getCompletedFirstRole() || "plaintiff");
+  const nextRole = getOppositeRole(firstRole);
+  const firstName = getPartyName(firstRole);
+  const nextName = getPartyName(nextRole);
+  if (currentLang === "en") {
+    return `You have been summoned to Friend Court ⚖️\nPlaintiff: ${state.plaintiffName}\nDefendant: ${state.defendantName}\nCase: ${getCaseTitle(item)}\n${firstName} already answered. Now ${nextName} must testify:\n${url}`;
+  }
+  return `คุณถูกส่งฟ้องใน Friend Court แล้ว ⚖️\nผู้ฟ้อง: ${state.plaintiffName}\nจำเลย: ${state.defendantName}\nคดี: ${getCaseTitle(item)}\n${firstName} ตอบแล้ว ตอนนี้ถึงตา ${nextName} ให้การต่อ:\n${url}`;
+}
+
+function buildFriendContinueText(verdict) {
+  const summary = getFriendCaseSummary(verdict);
+  const parties = getVerdictParties(verdict);
+  const caseTitle = getLocalized(verdict.caseTitle);
+  const plaintiff = summary?.plaintiff || parties.plaintiff;
+  const defendant = summary?.defendant || parties.defendant;
+  if (currentLang === "en") {
+    return `You have been summoned to Friend Court ⚖️\nPlaintiff: ${plaintiff}\nDefendant: ${defendant}\nCase: ${caseTitle}\nSee the verdict / keep playing here:`;
+  }
+  return `คุณถูกส่งฟ้องใน Friend Court แล้ว ⚖️\nผู้ฟ้อง: ${plaintiff}\nจำเลย: ${defendant}\nคดี: ${caseTitle}\nมาดูคำพิพากษา / เล่นต่อที่นี่:`;
 }
 
 function createVerdictImageFile(blob) {
@@ -4743,6 +5479,54 @@ function drawInfoBox(ctx, x, y, width, height, label, value) {
   drawWrappedText(ctx, label, x + 28, y + 38, width - 56, 28, canvasFont(900, 24), 1);
   ctx.fillStyle = "#0F172A";
   drawWrappedText(ctx, value, x + 28, y + 82, width - 56, 34, canvasFont(800, 29), 2);
+}
+
+function drawFriendSummaryCanvas(ctx, x, y, width, height, summary) {
+  roundRect(ctx, x, y, width, height, 26, "#FFFFFF");
+  ctx.strokeStyle = "rgba(184, 134, 11, 0.55)";
+  ctx.lineWidth = 3;
+  roundRectStroke(ctx, x, y, width, height, 26);
+  ctx.fillStyle = "#12306B";
+  drawWrappedText(ctx, currentLang === "th" ? "สรุปคดีเล่นกับเพื่อน" : "Play with Friend Summary", x + 28, y + 38, width - 220, 28, canvasFont(900, 25), 1);
+  ctx.save();
+  ctx.translate(x + width - 150, y + 44);
+  ctx.rotate(-0.12);
+  ctx.strokeStyle = "#B45309";
+  ctx.lineWidth = 4;
+  roundRectStroke(ctx, 0, 0, 116, 46, 12);
+  ctx.fillStyle = "#B45309";
+  ctx.font = canvasFont(900, 21);
+  ctx.fillText(currentLang === "th" ? "ศาลรับรอง" : "CERTIFIED", 12, 30);
+  ctx.restore();
+  const rows = [
+    [currentLang === "th" ? "ผู้ฟ้อง" : "Plaintiff", summary.plaintiff],
+    [currentLang === "th" ? "จำเลย" : "Defendant", summary.defendant],
+    [currentLang === "th" ? "คดี" : "Case", summary.caseTitle],
+    ...(summary.plaintiffScore != null ? [[currentLang === "th" ? "คะแนนผู้ฟ้อง" : "Plaintiff score", `${summary.plaintiffScore}`]] : []),
+    ...(summary.defendantScore != null ? [[currentLang === "th" ? "คะแนนจำเลย" : "Defendant score", `${summary.defendantScore}`]] : []),
+    [currentLang === "th" ? "ผลตัดสิน" : "Verdict", summary.status],
+    [currentLang === "th" ? "ผู้ชนะ" : "Winner", summary.winnerName],
+    [currentLang === "th" ? "ผู้แพ้/ผู้มีพิรุธ" : "Loser / Suspect", summary.loserName]
+  ];
+  const faces = getFriendSummaryFaces(summary);
+  if (faces.tie) {
+    ctx.fillStyle = "#0F172A";
+    ctx.font = canvasFont(900, 38);
+    ctx.fillText(faces.tie.emoji, x + width - 218, y + 86);
+  } else if (faces.plaintiff && faces.defendant) {
+    ctx.fillStyle = "#0F172A";
+    ctx.font = canvasFont(900, 34);
+    ctx.fillText(faces.plaintiff.emoji, x + width - 218, y + 86);
+    ctx.fillText(faces.defendant.emoji, x + width - 164, y + 86);
+  }
+  let rowY = y + 78;
+  rows.forEach(([label, value]) => {
+    ctx.fillStyle = "#64748B";
+    drawWrappedText(ctx, label, x + 28, rowY, 176, 25, canvasFont(900, 20), 1);
+    ctx.fillStyle = "#0F172A";
+    drawWrappedText(ctx, value, x + 220, rowY, width - 250, 25, canvasFont(800, 21), 1);
+    rowY += 25;
+  });
 }
 
 function canvasFont(weight, size) {
@@ -4937,6 +5721,136 @@ function hasParties() {
   return Boolean(state.plaintiffName.trim() && state.defendantName.trim());
 }
 
+function isFriendSameDeviceMode() {
+  return state.playMode === "friend" && state.friendPlayMethod === "same_device" && state.mode === "duo-same";
+}
+
+function isFriendSameDeviceFlow() {
+  return state.playMode === "friend" && state.friendPlayMethod === "same_device";
+}
+
+function isFriendShareLinkFlow() {
+  return state.playMode === "friend" && state.friendPlayMethod === "share_link";
+}
+
+function isFriendPlayFlow() {
+  return state.playMode === "friend" && (state.friendPlayMethod === "same_device" || state.friendPlayMethod === "share_link");
+}
+
+function isFriendAnswerMode() {
+  return state.playMode === "friend"
+    && ["duo-same", "friend-share-first", "friend-share-respond"].includes(state.mode);
+}
+
+function normalizeFriendRole(role) {
+  return role === "defendant" || role === "B" ? "defendant" : "plaintiff";
+}
+
+function getActiveFriendRole() {
+  return normalizeFriendRole(state.activePlayer || state.firstResponder || "plaintiff");
+}
+
+function getOppositeRole(role) {
+  return normalizeFriendRole(role) === "plaintiff" ? "defendant" : "plaintiff";
+}
+
+function getRoleLabel(role) {
+  const normalized = normalizeFriendRole(role);
+  if (currentLang === "en") return normalized === "plaintiff" ? "Plaintiff" : "Defendant";
+  return normalized === "plaintiff" ? "ผู้ฟ้อง" : "จำเลย";
+}
+
+function getStartRoleButtonText(role) {
+  const name = getPartyName(role);
+  if (currentLang === "en") return `Start ${getRoleLabel(role)} Round`;
+  return `ให้${getRoleLabel(role)}เริ่มเล่น`;
+}
+
+function getSendRoleLinkButtonText(role) {
+  const name = getPartyName(role);
+  if (currentLang === "en") return `Send Link to ${name}`;
+  return `📨 ส่งลิงก์ให้${name}`;
+}
+
+function getFriendHandoffTitle(nextRole) {
+  const label = getRoleLabel(nextRole);
+  if (currentLang === "en") return `Pass to the ${label}`;
+  return `ส่งให้${label}ตอบต่อ`;
+}
+
+function getFriendHandoffSubtitle(nextRole) {
+  const name = getPartyName(nextRole);
+  if (currentLang === "en") return `Now it is ${name}'s turn. No peeking at the other side's answers.`;
+  return `ตอนนี้ถึงตา ${name} แล้ว อย่าแอบดูคำตอบของอีกฝ่ายนะ`;
+}
+
+function getFriendHandoffEyebrow(completedRole) {
+  const label = getRoleLabel(completedRole);
+  if (currentLang === "en") return `${label} round complete`;
+  return `รอบ${label}เสร็จแล้ว`;
+}
+
+function setFriendPlayerResult(role, player) {
+  if (normalizeFriendRole(role) === "plaintiff") state.playerA = player;
+  else state.playerB = player;
+}
+
+function getFriendPlayerResult(role) {
+  return normalizeFriendRole(role) === "plaintiff" ? state.playerA : state.playerB;
+}
+
+function getCompletedFirstRole() {
+  if (state.firstResponder) return normalizeFriendRole(state.firstResponder);
+  if (state.playerA && !state.playerB) return "plaintiff";
+  if (state.playerB && !state.playerA) return "defendant";
+  return null;
+}
+
+function getCompletedFirstPlayer() {
+  const role = getCompletedFirstRole();
+  return role ? getFriendPlayerResult(role) : null;
+}
+
+function getPartyName(role) {
+  const normalized = normalizeFriendRole(role);
+  const fallback = normalized === "plaintiff"
+    ? (currentLang === "th" ? "ผู้ฟ้อง" : "Plaintiff")
+    : (currentLang === "th" ? "จำเลย" : "Defendant");
+  return (normalized === "plaintiff" ? state.plaintiffName : state.defendantName).trim() || fallback;
+}
+
+function partyNameText(role) {
+  const name = getPartyName(role);
+  return localText(name, name);
+}
+
+function getQuestionRoundInfo() {
+  if (!isFriendAnswerMode()) return null;
+  const activeRole = getActiveFriendRole();
+  const isPlaintiffRound = activeRole === "plaintiff";
+  const name = getPartyName(activeRole);
+  if (currentLang === "en") {
+    return isPlaintiffRound
+      ? {
+        title: `Plaintiff round: ${name}`,
+        subtitle: "Answer honestly. The court is watching."
+      }
+      : {
+        title: `Defendant round: ${name}`,
+        subtitle: "Answer carefully. Suspicion points affect the verdict."
+      };
+  }
+  return isPlaintiffRound
+    ? {
+      title: `รอบผู้ฟ้อง: ${name}`,
+      subtitle: "ตอบตามความจริง ศาลกำลังจับตาอยู่"
+    }
+    : {
+      title: `รอบจำเลย: ${name}`,
+      subtitle: "ตอบให้ดี คะแนนความน่าสงสัยมีผลต่อคำพิพากษา"
+    };
+}
+
 function getVerdictParties(verdict) {
   return {
     plaintiff: verdict.plaintiffName || state.plaintiffName || getLocalized(verdict.playerA?.name) || t("players.us"),
@@ -4945,6 +5859,22 @@ function getVerdictParties(verdict) {
 }
 
 function getVerdictReaction(verdict) {
+  if (verdict.outcome === "tie") {
+    return {
+      emoji: "🤔",
+      label: currentLang === "th" ? "ศาลกำลังงง" : "The court is confused",
+      verdictLabel: currentLang === "th" ? "เสมอกัน" : "Tie",
+      className: "is-confused"
+    };
+  }
+  if (verdict.outcome === "plaintiff_loses") {
+    return {
+      emoji: "😵",
+      label: currentLang === "th" ? "ผู้ฟ้องเสียอาการ" : "Plaintiff is losing composure",
+      verdictLabel: currentLang === "th" ? "ผู้ฟ้องมีพิรุธ" : "Plaintiff looks sus",
+      className: "is-sad"
+    };
+  }
   const defendantWins = verdict.outcome === "defendant_wins" || (!verdict.outcome && Number(verdict.guilty || 0) < 58);
   if (defendantWins) {
     return {
